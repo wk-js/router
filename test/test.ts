@@ -18,8 +18,4 @@ router.route('/404', function() {
   console.log('Not found')
 })
 
-router.route('/yolo', function() {
-  console.log('yolo')
-})
-
-router.go('/yolo')
+router.go('/FR/fr/404')
