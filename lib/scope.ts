@@ -1,18 +1,20 @@
 import Route from './route'
+import { guid } from './utils/guid'
+
+const SCOPES = {}
 
 class Scope {
 
   routes:Route[] = []
   children:any   = {}
 
-  constructor(public path:string, public parent?:Scope) {}
+  name:string
+  uuid:string
 
-  get name() {
-    return this.path.replace(/(\/|\\)/g, '')
-  }
-
-  get is_parameter() {
-    return this.name.match(/^:/)
+  constructor(path:string, public parent?:Scope) {
+    this.name = path.replace(/(\/|\\)/g, '')
+    this.uuid = guid()
+    SCOPES[this.uuid] = this
   }
 
   findRoute(name) : Route {
@@ -88,6 +90,10 @@ class Scope {
     }
 
     return '/' + path.reverse().join('/')
+  }
+
+  static findByUUID(uuid:string) : Scope {
+    return SCOPES[uuid]
   }
 
 }

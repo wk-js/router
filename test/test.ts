@@ -1,27 +1,21 @@
 import Router from '../lib/router'
 
-Router.route('/', function() {
-  console.log('home?')
+const router = new Router
+
+router.scope('/:country', function() {
+  router.scope('/:locale', function() {
+
+    router.route('/', function() {
+      console.log('Home')
+    })
+
+    router.redirect('/404', '/404')
+
+  })
 })
 
-Router.route('/foo', function() {
-  console.log('foo')
+router.route('/404', function() {
+  console.log('Not found')
 })
 
-Router.route('/bar', function() {
-  console.log('bar')
-})
-
-Router.redirect('/baz', '/bar')
-
-Router.go('/')
-Router.go('/bar')
-Router.go('/foo')
-Router.go('/baz')
-console.log('---------------')
-console.log(Router.stack)
-console.log('---------------')
-Router.backward()
-Router.backward()
-Router.backward()
-Router.forward()
+router.go('/FR/fr/404')

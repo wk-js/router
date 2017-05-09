@@ -6,13 +6,11 @@ class Router {
 
   private resolver:Resolver = new Resolver
 
-  private defaultScope:Scope
-  private currentScope:Scope
-  public stack:string[] = []
-  private path:string
-  private position:number
-
-  public routes:string[]
+  defaultScope:Scope
+  currentScope:Scope
+  stack:string[] = []
+  path:string
+  position:number
 
   constructor() {
     this.defaultScope = new Scope('/')
@@ -45,6 +43,7 @@ class Router {
 
   route(path, closure) {
     const route = new Route(path, closure)
+    route.scope_uuid = this.currentScope.uuid
     this.currentScope.routes.push( route )
   }
 
@@ -53,42 +52,55 @@ class Router {
       console.log('Redirect to', route_path)
       this.go(route_path)
     })
+    route.scope_uuid = this.currentScope.uuid
     route.redirect = true
     this.currentScope.routes.push( route )
   }
 
   go(path, options?:any) {
-    const route = this.defaultScope.resolve(path)
+    const result = this.resolver.resolve(this, path, options)
 
-    options = Object.assign({
-      push: true
-    }, options || {})
+    const route:Route = result.route
+    const args:any    = result.args
 
     if (route && route.path !== this.path) {
-      if (!route.redirect) {
-        this.path = route.path
-        options.push ? this.stack.push( this.path ) : void(0)
-      }
-      route.closure()
+      if (!route.redirect) this.path = route.path
+      route.closure(args)
       return true
     }
 
     return false
+
+    // const route = this.defaultScope.resolve(path)
+
+    // options = Object.assign({
+    //   // push: true
+    // }, options || {})
+
+    // if (route && route.path !== this.path) {
+    //   if (!route.redirect) {
+    //     this.path = route.path
+    //     // options.push ? this.stack.push( this.path ) : void(0)
+    //   }
+    //   route.closure()
+    //   return true
+    // }
+
+    // return false
   }
 
-  backward() {
-    this.position--
-    const index = this.stack.length + this.position - 1
-    if (this.stack[index]) this.go( this.stack[index], { push: false })
-  }
+  // backward() {
+  //   this.position--
+  //   const index = this.stack.length + this.position - 1
+  //   if (this.stack[index]) this.go( this.stack[index], { push: false })
+  // }
 
-  forward() {
-    this.position++
-    const index = this.stack.length + this.position - 1
-    if (this.stack[index]) this.go( this.stack[index], { push: false })
-  }
+  // forward() {
+  //   this.position++
+  //   const index = this.stack.length + this.position - 1
+  //   if (this.stack[index]) this.go( this.stack[index], { push: false })
+  // }
 
 }
 
-const RouterSingleton = new Router
-export default RouterSingleton
+export default Router
