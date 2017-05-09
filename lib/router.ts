@@ -6,17 +6,22 @@ class Router {
 
   private resolver:Resolver = new Resolver
 
-  public routes:string[]
+  private defaultScope:Scope
+  private currentScope:Scope
+  public stack:string[] = []
+  private path:string
+  private position:number
 
-  defaultScope:Scope
-  currentScope:Scope
-  path:string
+  public routes:string[]
 
   constructor() {
     this.defaultScope = new Scope('/')
     this.currentScope = this.defaultScope
 
     this.path = this.defaultScope.getPath()
+
+    this.stack.push( this.path )
+    this.position = 0
   }
 
   create() {
@@ -52,16 +57,35 @@ class Router {
     this.currentScope.routes.push( route )
   }
 
-  go(path) {
+  go(path, options?:any) {
     const route = this.defaultScope.resolve(path)
 
+    options = Object.assign({
+      push: true
+    }, options || {})
+
     if (route && route.path !== this.path) {
-      if (!route.redirect) this.path = route.path
+      if (!route.redirect) {
+        this.path = route.path
+        options.push ? this.stack.push( this.path ) : void(0)
+      }
       route.closure()
       return true
     }
 
     return false
+  }
+
+  backward() {
+    this.position--
+    const index = this.stack.length + this.position - 1
+    if (this.stack[index]) this.go( this.stack[index], { push: false })
+  }
+
+  forward() {
+    this.position++
+    const index = this.stack.length + this.position - 1
+    if (this.stack[index]) this.go( this.stack[index], { push: false })
   }
 
 }
