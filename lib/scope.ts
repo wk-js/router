@@ -1,23 +1,38 @@
-import Route from './route'
 import { guid } from './utils/guid'
-
-const SCOPES = {}
 
 class Scope {
 
-  routes:Route[] = []
+  routes:Scope[] = []
   children:any   = {}
 
   name:string
   uuid:string
+  parent_uuid:string
 
-  constructor(path:string, public parent?:Scope) {
+  redirect:boolean = false
+
+  static SCOPES = {}
+
+  constructor(path:string, parent?:Scope, public closure?:(args:any) => void) {
     this.name = path.replace(/(\/|\\)/g, '')
     this.uuid = guid()
-    SCOPES[this.uuid] = this
+    if (parent) this.parent_uuid = parent.uuid
+    Scope.SCOPES[this.uuid] = this
   }
 
-  findRoute(name) : Route {
+  get parent() {
+    return Scope.findByUUID(this.parent_uuid)
+  }
+
+  get parameters() {
+    return this.getPath().match(/:[a-z]+/gi) || []
+  }
+
+  get has_parameters() {
+    return this.parameters.length > 0
+  }
+
+  findRoute(name) : Scope {
     for (let i = 0, ilen = this.routes.length; i < ilen; i++) {
       if (this.routes[i].name === name) return this.routes[i]
     }
@@ -29,11 +44,11 @@ class Scope {
    * Return the route from path
    *
    * @param {String} path
-   * @returns {Route}
+   * @returns {Scope}
    *
    * @memberof Scope
    */
-  resolve( path:string ) : Route {
+  resolve( path:string ) : Scope {
     const parts = path.replace(/^(\/|\\)/g, '').split('/')
     const name  = parts.pop()
     const scope = this.resolveScope( parts.join('/') )
@@ -93,7 +108,7 @@ class Scope {
   }
 
   static findByUUID(uuid:string) : Scope {
-    return SCOPES[uuid]
+    return Scope.SCOPES[uuid]
   }
 
 }

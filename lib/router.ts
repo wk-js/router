@@ -1,4 +1,3 @@
-import Route from './route'
 import Scope from './scope'
 import Resolver from './resolver'
 
@@ -42,17 +41,15 @@ class Router {
   }
 
   route(path, closure) {
-    const route = new Route(path, closure)
-    route.scope_uuid = this.currentScope.uuid
+    const route = new Scope(path, this.currentScope, closure)
     this.currentScope.routes.push( route )
   }
 
   redirect(path, route_path) {
-    const route = new Route(path, () => {
+    const route = new Scope(path, this.currentScope, () => {
       console.log('Redirect to', route_path)
       this.go(route_path)
     })
-    route.scope_uuid = this.currentScope.uuid
     route.redirect = true
     this.currentScope.routes.push( route )
   }
@@ -60,11 +57,11 @@ class Router {
   go(path, options?:any) {
     const result = this.resolver.resolve(this, path, options)
 
-    const route:Route = result.route
+    const route:Scope = result.route
     const args:any    = result.args
 
-    if (route && route.path !== this.path) {
-      if (!route.redirect) this.path = route.path
+    if (route && route.getPath() !== this.path) {
+      if (!route.redirect) this.path = route.getPath()
       route.closure(args)
       return true
     }

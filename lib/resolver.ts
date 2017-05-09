@@ -1,5 +1,4 @@
 import Router from './router'
-import Route from './route'
 
 class Resolver {
 
@@ -52,7 +51,7 @@ class Resolver {
 
   match(route, path) {
     const values = this.getValues(path)
-    const params = this.getValues(route.path)
+    const params = this.getValues(route.getPath())
     const route_params = route.parameters
 
     const args:any = {}
