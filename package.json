@@ -4,11 +4,17 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "./node_modules/.bin/ts-node ./test/test.ts",
+    "start": "./node_modules/.bin/nodemon --exec ./node_modules/.bin/ts-node ./test/test.ts"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
     "@types/node": "^7.0.18"
+  },
+  "devDependencies": {
+    "nodemon": "^1.11.0",
+    "ts-node": "^3.0.4",
+    "typescript": "^2.3.2"
   }
 }
