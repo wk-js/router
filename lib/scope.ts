@@ -12,7 +12,7 @@ class Scope {
 
   redirect:boolean = false
 
-  validate?:(value:string) => boolean
+  constraint?:(value:string) => boolean
 
   static SCOPES = {}
 

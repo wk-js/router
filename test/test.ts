@@ -12,7 +12,7 @@ router.scope('/:country', function() {
     router.route('/:page', function(params) {
       console.log('Show', params.page)
     }, {
-      validate: /contact|about/
+      constraint: /contact|about/
     })
 
     router.redirect('/:anything', '/404')

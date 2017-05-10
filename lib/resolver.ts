@@ -69,7 +69,7 @@ class Resolver {
         return scope.name !== values[i] ? '' : values[i]
       }
 
-      if (scope.validate && values[i] && !scope.validate(values[i])) {
+      if (scope.constraint && values[i] && !scope.constraint(values[i])) {
         return ''
       }
 

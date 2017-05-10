@@ -104,20 +104,20 @@ class Router {
   private _parseOptions( route:Scope|Route, options:any ) {
     options = options || {}
 
-    if (options.validate) {
-      const validate = options.validate
+    if (options.constraint) {
+      const constraint = options.constraint
 
-      if (options.validate instanceof RegExp) {
-        options.validate = function(value) {
-          return !!value.match(validate)
+      if (options.constraint instanceof RegExp) {
+        options.constraint = function(value) {
+          return !!value.match(constraint)
         }
-      } else if (typeof options.validate === 'string') {
-        options.validate = function(value) {
-          return value === validate
+      } else if (typeof options.constraint === 'string') {
+        options.constraint = function(value) {
+          return value === constraint
         }
       }
 
-      route.validate = options.validate
+      route.constraint = options.constraint
     }
   }
 
