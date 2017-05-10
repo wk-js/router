@@ -1,10 +1,18 @@
+import Route from './route'
+import Scope from './scope'
 import Router from './router'
+
+interface ResolverResult {
+  route?:Route,
+  args?:any,
+  path:string
+}
 
 class Resolver {
 
-  resolve(router:Router, path:string, options?) {
+  resolve(router:Router, path:string, options?) : ResolverResult {
     const route = router.defaultScope.resolve(path)
-    let result  = { route: null, args: null }
+    let result:ResolverResult = <ResolverResult>{ path: path }
 
     if (route && !route.has_parameters) {
       result.route = route
@@ -51,18 +59,22 @@ class Resolver {
 
   match(route, path) {
     const values = this.getValues(path)
-    const params = this.getValues(route.getPath())
-    const route_params = route.parameters
+    const route_params = route.getParameters()
+    const scopes:Scope[] = route.getScopes().slice(1)
 
     const args:any = {}
 
-    const resPath = '/' + params.map(function(p, i) {
-      if (route_params.indexOf(p) === -1) {
-        return p !== values[i] ? '' : values[i]
+    const resPath = '/' + scopes.map(function(scope, i) {
+      if (route_params.indexOf(scope.name) === -1) {
+        return scope.name !== values[i] ? '' : values[i]
       }
 
-      return values[i] !== p ? args[p.slice(1)] = values[i] : ''
-    }).join('/')
+      if (scope.validate && values[i] && !scope.validate(values[i])) {
+        return ''
+      }
+
+      return values[i] !== scope.name ? args[scope.name.slice(1)] = values[i] : ''
+    }).join('/').replace(/^\/|\/$/, '')
 
     if (resPath === path) return args
 

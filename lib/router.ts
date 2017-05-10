@@ -1,3 +1,4 @@
+import Route from './route'
 import Scope from './scope'
 import Resolver from './resolver'
 
@@ -25,13 +26,14 @@ class Router {
     return new Router
   }
 
-  scope(path, closure) : Scope {
+  scope(path:string, closure:(scope:Scope) => void, options?:any) : Scope {
     const current = this.currentScope
 
     // Find or create a scope
     let scope:Scope = current.children[path]
     if (!scope) scope = new Scope(path, current)
     current.children[path] = scope
+    this._parseOptions( scope, options )
 
     this.currentScope = scope
     closure.call(scope)
@@ -40,13 +42,14 @@ class Router {
     return scope
   }
 
-  route(path, closure) {
-    const route = new Scope(path, this.currentScope, closure)
+  route(path, closure:(args:any) => void, options?:any) {
+    const route = new Route(path, this.currentScope, closure)
+    this._parseOptions( route, options )
     this.currentScope.routes.push( route )
   }
 
   redirect(path, route_path) {
-    const route = new Scope(path, this.currentScope, () => {
+    const route = new Route(path, this.currentScope, () => {
       console.log('Redirect to', route_path)
       this.go(route_path)
     })
@@ -57,11 +60,11 @@ class Router {
   go(path, options?:any) {
     const result = this.resolver.resolve(this, path, options)
 
-    const route:Scope = result.route
+    const route:Route = result.route
     const args:any    = result.args
 
-    if (route && route.getPath() !== this.path) {
-      if (!route.redirect) this.path = route.getPath()
+    if (route && result.path !== this.path) {
+      if (!route.redirect) this.path = result.path
       route.closure(args)
       return true
     }
@@ -97,6 +100,26 @@ class Router {
   //   const index = this.stack.length + this.position - 1
   //   if (this.stack[index]) this.go( this.stack[index], { push: false })
   // }
+
+  private _parseOptions( route:Scope|Route, options:any ) {
+    options = options || {}
+
+    if (options.validate) {
+      const validate = options.validate
+
+      if (options.validate instanceof RegExp) {
+        options.validate = function(value) {
+          return !!value.match(validate)
+        }
+      } else if (typeof options.validate === 'string') {
+        options.validate = function(value) {
+          return value === validate
+        }
+      }
+
+      route.validate = options.validate
+    }
+  }
 
 }
 

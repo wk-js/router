@@ -1,8 +1,9 @@
+import Route from './route'
 import { guid } from './utils/guid'
 
 class Scope {
 
-  routes:Scope[] = []
+  routes:Route[] = []
   children:any   = {}
 
   name:string
@@ -11,9 +12,11 @@ class Scope {
 
   redirect:boolean = false
 
+  validate?:(value:string) => boolean
+
   static SCOPES = {}
 
-  constructor(path:string, parent?:Scope, public closure?:(args:any) => void) {
+  constructor(path:string, parent?:Scope) {
     this.name = path.replace(/(\/|\\)/g, '')
     this.uuid = guid()
     if (parent) this.parent_uuid = parent.uuid
@@ -24,15 +27,51 @@ class Scope {
     return Scope.findByUUID(this.parent_uuid)
   }
 
-  get parameters() {
+  get has_parameters() {
+    return this.getParameters().length > 0
+  }
+
+  /**
+   * Get scope path
+   *
+   * @returns {String}
+   *
+   * @memberof Scope
+   */
+  getPath() : string {
+    const scopes:Scope[] = this.getScopes()
+
+    const path = scopes.map(function(scope) {
+      return scope.name
+    }).join('/')
+
+    return path.length === 0 ? '/' : path
+  }
+
+  getScopes() : Scope[] {
+    const scopes:Scope[] = [ this ]
+    let next     = true
+    let name:string
+
+    let current:Scope = this
+
+    while(next) {
+      if (current.parent) {
+        scopes.unshift(current.parent)
+        current = current.parent
+        continue
+      }
+      next = false
+    }
+
+    return scopes
+  }
+
+  getParameters() {
     return this.getPath().match(/:[a-z]+/gi) || []
   }
 
-  get has_parameters() {
-    return this.parameters.length > 0
-  }
-
-  findRoute(name) : Scope {
+  findRoute(name) : Route {
     for (let i = 0, ilen = this.routes.length; i < ilen; i++) {
       if (this.routes[i].name === name) return this.routes[i]
     }
@@ -48,7 +87,7 @@ class Scope {
    *
    * @memberof Scope
    */
-  resolve( path:string ) : Scope {
+  resolve( path:string ) : Route {
     const parts = path.replace(/^(\/|\\)/g, '').split('/')
     const name  = parts.pop()
     const scope = this.resolveScope( parts.join('/') )
@@ -78,33 +117,6 @@ class Scope {
     }
 
     return scope || (this.parent && this.parent.resolveScope(path))
-  }
-
-  /**
-   * Get scope path
-   *
-   * @returns {String}
-   *
-   * @memberof Scope
-   */
-  getPath() : string {
-    const path  = [ this.name ]
-    let next    = true
-    let name:string
-
-    let current:Scope = this
-
-    while(next) {
-      if (current.parent) {
-        name = current.parent.name
-        if (name.length > 0) path.push(name)
-        current = current.parent
-        continue
-      }
-      next = false
-    }
-
-    return '/' + path.reverse().join('/')
   }
 
   static findByUUID(uuid:string) : Scope {

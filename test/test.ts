@@ -9,7 +9,13 @@ router.scope('/:country', function() {
       console.log('Home')
     })
 
-    router.redirect('/404', '/404')
+    router.route('/:page', function(params) {
+      console.log('Show', params.page)
+    }, {
+      validate: /contact|about/
+    })
+
+    router.redirect('/:anything', '/404')
 
   })
 })
@@ -18,4 +24,8 @@ router.route('/404', function() {
   console.log('Not found')
 })
 
-router.go('/FR/fr/404')
+// Test
+router.go('/FR/fr')
+router.go('/FR/fr/about')
+router.go('/FR/fr/contact')
+router.go('/FR/fr/lol')
