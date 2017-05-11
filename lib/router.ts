@@ -121,14 +121,17 @@ class Router {
     // Constraint
     if (options.constraint) {
       const constraint = options.constraint
+      let regex:RegExp
 
-      if (options.constraint instanceof RegExp) {
-        options.constraint = function(value) {
-          return !!value.match(constraint)
+      if (options.constraint && typeof options.constraint != 'function') {
+        if (options.constraint instanceof RegExp) {
+          regex = constraint
+        } else if (typeof options.constraint === 'string') {
+          regex = new RegExp(constraint)
         }
-      } else if (typeof options.constraint === 'string') {
+
         options.constraint = function(value) {
-          return value === constraint
+          return !!value.match(regex)
         }
       }
 
