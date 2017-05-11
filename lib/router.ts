@@ -12,14 +12,24 @@ class Router {
   path:string
   position:number
 
+  concerns:any
+
   constructor() {
     this.defaultScope = new Scope('/')
     this.currentScope = this.defaultScope
+
+    this.concerns = {}
 
     this.path = this.defaultScope.getPath()
 
     this.stack.push( this.path )
     this.position = 0
+  }
+
+  getRoutes() : string[] {
+    return this.resolver.getRoutes(this.defaultScope).map(function(route) {
+      return route.getPath()
+    })
   }
 
   create() {
@@ -55,6 +65,10 @@ class Router {
     })
     route.redirect = true
     this.currentScope.routes.push( route )
+  }
+
+  concern(name: string, closure:() => void) {
+    this.concerns[name] = closure
   }
 
   go(path, options?:any) {
@@ -104,6 +118,7 @@ class Router {
   private _parseOptions( route:Scope|Route, options:any ) {
     options = options || {}
 
+    // Constraint
     if (options.constraint) {
       const constraint = options.constraint
 
@@ -119,6 +134,17 @@ class Router {
 
       route.constraint = options.constraint
     }
+
+    // Concern
+    if (options.concern && this.concerns[options.concern] && route instanceof Scope) {
+      const current = this.currentScope
+      const scope:Scope = <Scope>route
+
+      this.currentScope = scope
+      this.concerns[options.concern].call(scope)
+      this.currentScope = current
+    }
+
   }
 
 }
