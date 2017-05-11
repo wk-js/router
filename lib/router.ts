@@ -1,7 +1,7 @@
 import Route from './route'
 import Scope from './scope'
 import Resolver from './resolver'
-import { trim } from './utils/path'
+import { trim, split } from './utils/path'
 
 class Router {
 
@@ -39,24 +39,10 @@ class Router {
 
   scope(path:string, closure:(scope:Scope) => void, options?:any) : Scope {
 
-    const paths = trim(path).split('/')
+    const paths = split(path)
 
     if (paths.length > 1) {
-
-      const current = this.currentScope
-
-      for (let i = 0, ilen = paths.length; i < ilen; i++) {
-
-        if (i === ilen) {
-          this.currentScope = this.scope(paths[i], () => {})
-        } else {
-          this.currentScope = this.scope(paths[i], closure)
-        }
-      }
-
-      this.currentScope = current
-
-      return
+      return this.split_scope(paths, closure, options)
     }
 
     const current = this.currentScope
@@ -136,6 +122,32 @@ class Router {
   //   const index = this.stack.length + this.position - 1
   //   if (this.stack[index]) this.go( this.stack[index], { push: false })
   // }
+
+  private split_scope(parts:string[], closure:(scope:Scope) => void, options?:any) : Scope {
+    const current = this.currentScope
+
+    options = options || {}
+
+    let opts:any
+
+    for (let i = 0, ilen = parts.length, last = parts.length-1; i < ilen; i++) {
+
+      opts = {}
+
+      if (options.constraint && options.constraint[parts[i]])
+        opts.constraint = options.constraint[parts[i]]
+      if (options.concern && options.concern[parts[i]])
+        opts.concern = options.concern[parts[i]]
+
+      this.currentScope = this.scope(parts[i], i === last ? closure : () => {}, opts)
+    }
+
+    const scope = this.currentScope
+
+    this.currentScope = current
+
+    return scope
+  }
 
   private _parseOptions( route:Scope|Route, options:any ) {
     options = options || {}

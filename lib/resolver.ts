@@ -1,6 +1,7 @@
 import Route from './route'
 import Scope from './scope'
 import Router from './router'
+import { split, join, slash } from './utils/path'
 
 interface ResolverResult {
   route?:Route,
@@ -47,11 +48,11 @@ class Resolver {
   }
 
   getValues(path) {
-    const tmp = path.replace(/(^\/|\/$)/g, '').split('/')
-    const arr = []
+    const parts = split(path)
+    const arr   = []
 
-    for (let i = 0; i < tmp.length; i++) {
-      if (tmp[i] || tmp[i].length > 0) arr.push(tmp[i])
+    for (let i = 0; i < parts.length; i++) {
+      if (parts[i] || parts[i].length > 0) arr.push(parts[i])
     }
 
     return arr
@@ -64,7 +65,7 @@ class Resolver {
 
     const args:any = {}
 
-    const resPath = '/' + scopes.map(function(scope, i) {
+    const resPath = join(scopes.map(function(scope, i) {
       if (route_params.indexOf(scope.name) === -1) {
         return scope.name !== values[i] ? scope.name : values[i]
       }
@@ -74,9 +75,9 @@ class Resolver {
       }
 
       return values[i] !== scope.name ? args[scope.name.slice(1)] = values[i] : scope.name
-    }).join('/').replace(/^\/|\/$/, '')
+    }))
 
-    if (resPath === path) return args
+    if (slash(resPath) === path) return args
 
     return null
   }

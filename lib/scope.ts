@@ -1,5 +1,6 @@
 import Route from './route'
 import { guid } from './utils/guid'
+import { clean, split, join, slash } from './utils/path'
 
 class Scope {
 
@@ -17,7 +18,7 @@ class Scope {
   static SCOPES = {}
 
   constructor(path:string, parent?:Scope) {
-    this.name = path.replace(/(\/|\\)/g, '')
+    this.name = clean(path)
     this.uuid = guid()
     if (parent) this.parent_uuid = parent.uuid
     Scope.SCOPES[this.uuid] = this
@@ -41,11 +42,11 @@ class Scope {
   getPath() : string {
     const scopes:Scope[] = this.getScopes()
 
-    const path = scopes.map(function(scope) {
+    const path = join(scopes.map(function(scope) {
       return scope.name
-    }).join('/')
+    }))
 
-    return path.length === 0 ? '/' : path
+    return slash(path)
   }
 
   getScopes() : Scope[] {
@@ -88,9 +89,9 @@ class Scope {
    * @memberof Scope
    */
   resolve( path:string ) : Route {
-    const parts = path.replace(/^(\/|\\)/g, '').split('/')
+    const parts = split(path)
     const name  = parts.pop()
-    const scope = this.resolveScope( parts.join('/') )
+    const scope = this.resolveScope( join(parts) )
 
     return (scope && scope.findRoute(name)) || (this.parent && this.parent.resolve(path))
   }
@@ -106,13 +107,13 @@ class Scope {
   resolveScope( path?:string ) : Scope {
     if (!path) return this
 
-    const parts = path.replace(/^(\/|\\)/g, '').split('/')
+    const parts = split(path)
 
     let scope:Scope = this
 
     for (let i = 0, ilen = parts.length; i < ilen; i++) {
       if (scope) {
-        scope = scope.children['/' + parts[i]]
+        scope = scope.children[slash(parts[i])]
       }
     }
 
