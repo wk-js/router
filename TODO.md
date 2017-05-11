@@ -1,5 +1,5 @@
-* Add defaults to parameters
-* Add concerns
-* Add forward-backward
-* Handle history
-* Multi-scope creation
+* [ ] Add defaults to parameters
+* [x] Add concerns
+* [ ] Add forward-backward
+* [ ] Handle history
+* [ ] Multi-scope creation

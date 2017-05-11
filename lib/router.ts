@@ -1,6 +1,7 @@
 import Route from './route'
 import Scope from './scope'
 import Resolver from './resolver'
+import { trim } from './utils/path'
 
 class Router {
 
@@ -37,6 +38,27 @@ class Router {
   }
 
   scope(path:string, closure:(scope:Scope) => void, options?:any) : Scope {
+
+    const paths = trim(path).split('/')
+
+    if (paths.length > 1) {
+
+      const current = this.currentScope
+
+      for (let i = 0, ilen = paths.length; i < ilen; i++) {
+
+        if (i === ilen) {
+          this.currentScope = this.scope(paths[i], () => {})
+        } else {
+          this.currentScope = this.scope(paths[i], closure)
+        }
+      }
+
+      this.currentScope = current
+
+      return
+    }
+
     const current = this.currentScope
 
     // Find or create a scope
