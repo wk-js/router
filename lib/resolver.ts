@@ -66,14 +66,14 @@ class Resolver {
 
     const resPath = '/' + scopes.map(function(scope, i) {
       if (route_params.indexOf(scope.name) === -1) {
-        return scope.name !== values[i] ? '' : values[i]
+        return scope.name !== values[i] ? scope.name : values[i]
       }
 
       if (scope.constraint && values[i] && !scope.constraint(values[i])) {
-        return ''
+        return scope.name
       }
 
-      return values[i] !== scope.name ? args[scope.name.slice(1)] = values[i] : ''
+      return values[i] !== scope.name ? args[scope.name.slice(1)] = values[i] : scope.name
     }).join('/').replace(/^\/|\/$/, '')
 
     if (resPath === path) return args
