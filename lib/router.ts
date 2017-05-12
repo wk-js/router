@@ -134,10 +134,10 @@ class Router {
 
       opts = {}
 
-      if (options.constraint && options.constraint[parts[i]])
-        opts.constraint = options.constraint[parts[i]]
-      if (options.concern && options.concern[parts[i]])
-        opts.concern = options.concern[parts[i]]
+      for (const key in options) {
+        if (options[key] && options[key][parts[i]])
+          opts[key] = options[key][parts[i]]
+      }
 
       this.currentScope = this.scope(parts[i], i === last ? closure : () => {}, opts)
     }
