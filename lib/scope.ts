@@ -1,3 +1,4 @@
+import Part from './part'
 import Route from './route'
 import { guid } from './utils/guid'
 import { clean, split, join, slash } from './utils/path'
@@ -7,18 +8,21 @@ class Scope {
   routes:Route[] = []
   children:any   = {}
 
-  name:string
+  // name:string
+  part:Part
   uuid:string
   parent_uuid:string
 
   redirect:boolean = false
 
   constraint?:(value:string) => boolean
+  default?:string
 
   static SCOPES = {}
 
   constructor(path:string, parent?:Scope) {
-    this.name = clean(path)
+    this.part = new Part(path)
+    //this.name = clean(path)
     this.uuid = guid()
     if (parent) this.parent_uuid = parent.uuid
     Scope.SCOPES[this.uuid] = this
@@ -43,7 +47,7 @@ class Scope {
     const scopes:Scope[] = this.getScopes()
 
     const path = join(scopes.map(function(scope) {
-      return scope.name
+      return scope.part.basename
     }))
 
     return slash(path)
@@ -74,7 +78,7 @@ class Scope {
 
   findRoute(name) : Route {
     for (let i = 0, ilen = this.routes.length; i < ilen; i++) {
-      if (this.routes[i].name === name) return this.routes[i]
+      if (this.routes[i].part.basename === name) return this.routes[i]
     }
 
     return null

@@ -2,4 +2,4 @@
 * [x] Add concerns
 * [ ] Add forward-backward
 * [ ] Handle history
-* [ ] Multi-scope creation
+* [x] Multi-scope creation

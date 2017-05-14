@@ -1,7 +1,8 @@
 import Route from './route'
 import Scope from './scope'
+import Part from './part'
 import Router from './router'
-import { split, join, slash } from './utils/path'
+import { split, join, slash, clean } from './utils/path'
 
 interface ResolverResult {
   route?:Route,
@@ -12,6 +13,8 @@ interface ResolverResult {
 class Resolver {
 
   resolve(router:Router, path:string, options?) : ResolverResult {
+    path = clean(path)
+
     const route = router.defaultScope.resolve(path)
     let result:ResolverResult = <ResolverResult>{ path: path }
 
@@ -37,7 +40,7 @@ class Resolver {
     let routes = []
 
     for (let i = 0, ilen = scope.routes.length; i < ilen; i++) {
-      routes.push( scope.findRoute(scope.routes[i].name) )
+      routes.push( scope.findRoute(scope.routes[i].part.basename) )
     }
 
     for (const k in scope.children) {
@@ -59,27 +62,50 @@ class Resolver {
   }
 
   match(route, path) {
-    const values = this.getValues(path)
-    const route_params = route.getParameters()
-    const scopes:Scope[] = route.getScopes().slice(1)
+    const parts = this.getValues(path).map(function(v) {
+      return new Part(slash(v))
+    })
 
-    const args:any = {}
-
-    const resPath = join(scopes.map(function(scope, i) {
-      if (route_params.indexOf(scope.name) === -1) {
-        return scope.name !== values[i] ? scope.name : values[i]
-      }
-
-      if (scope.constraint && values[i] && !scope.constraint(values[i])) {
-        return scope.name
-      }
-
-      return values[i] !== scope.name ? args[scope.name.slice(1)] = values[i] : scope.name
+    console.log(parts)
+    console.log(route.getScopes().map(function(s) {
+      return s.part
     }))
 
-    if (slash(resPath) === path) return args
+    console.log('--------------------')
 
-    return null
+
+    // const values = this.getValues(path)
+    // const route_params = route.getParameters()
+    // const scopes:Scope[] = route.getScopes().slice(1)
+
+    // console.log(values, route.name, route_params)
+
+
+
+
+    // const args:any = {}
+
+    // const resPath = join(scopes.map(function(scope, i) {
+    //   if (((!values[i]) || (values[i] && values[i].match(/^:/))) && scope.default) {
+    //     values[i] = scope.default
+    //   }
+
+    //   if (route_params.indexOf(scope.part.basename) === -1) {
+    //     return scope.part.basename !== values[i] ? scope.part.basename : values[i]
+    //   }
+
+    //   if (scope.constraint && values[i] && !scope.constraint(values[i])) {
+    //     return scope.part.basename
+    //   }
+
+    //   return values[i] !== scope.part.basename ? args[scope.part.basename.slice(1)] = values[i] : scope.part.basename
+    // }))
+
+    // // console.log(resPath, path)
+
+    // if (slash(resPath) === path) return args
+
+    // return null
   }
 
 }

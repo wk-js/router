@@ -51,14 +51,14 @@ router.scope('/:country/:locale', function() {
 
   router.redirect('/:anything', '/404')
 
-}, { concern: { ":locale": 'errors' } })
+}, { concern: { ":locale": 'errors' }, default: { ":country": "FR", ":locale": "fr" } })
 
 // Test
-router.go('/FR/fr')
-router.go('/FR/fr/about')
-router.go('/FR/fr/contact')
-router.go('/FR/fr/lol')
+router.go('/:country/:locale')
+// router.go('/FR/fr/about')
+// router.go('/FR/fr/contact')
+// router.go('/FR/fr/lol')
 
-router.go('/FR/fr/500')
+// router.go('/FR/fr/500')
 
 console.log(router.getRoutes())

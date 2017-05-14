@@ -182,6 +182,12 @@ class Router {
       this.currentScope = current
     }
 
+    // Default
+    if (options.default && typeof options.default == 'string') {
+      route.default = options.default
+    }
+
+
   }
 
 }
