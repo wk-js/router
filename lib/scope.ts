@@ -1,132 +1,152 @@
-import Part from './part'
 import Route from './route'
+import Part from './part'
 import { guid } from './utils/guid'
 import { clean, split, join, slash } from './utils/path'
 
-class Scope {
+interface ScopeChildren {
+  [key:string]: Scope
+}
 
-  routes:Route[] = []
-  children:any   = {}
+function NOOP() {}
 
-  // name:string
-  part:Part
-  uuid:string
-  parent_uuid:string
+class Scope extends Part {
 
-  redirect:boolean = false
+  public routes:Route[] = []
 
-  constraint?:(value:string) => boolean
-  default?:string
-
-  static SCOPES = {}
+  public children:ScopeChildren = {}
 
   constructor(path:string, parent?:Scope) {
-    this.part = new Part(path)
-    //this.name = clean(path)
-    this.uuid = guid()
-    if (parent) this.parent_uuid = parent.uuid
-    Scope.SCOPES[this.uuid] = this
-  }
+    super(path, parent ? parent.uuid : undefined)
+    this.routes.push( new Route('/', this, NOOP) )
 
-  get parent() {
-    return Scope.findByUUID(this.parent_uuid)
-  }
-
-  get has_parameters() {
-    return this.getParameters().length > 0
-  }
-
-  /**
-   * Get scope path
-   *
-   * @returns {String}
-   *
-   * @memberof Scope
-   */
-  getPath() : string {
-    const scopes:Scope[] = this.getScopes()
-
-    const path = join(scopes.map(function(scope) {
-      return scope.part.basename
-    }))
-
-    return slash(path)
-  }
-
-  getScopes() : Scope[] {
-    const scopes:Scope[] = [ this ]
-    let next     = true
-    let name:string
-
-    let current:Scope = this
-
-    while(next) {
-      if (current.parent) {
-        scopes.unshift(current.parent)
-        current = current.parent
-        continue
-      }
-      next = false
+    if (this.parent) {
+      (this.parent as Scope).children[this.slashname] = this
     }
-
-    return scopes
   }
 
-  getParameters() {
-    return this.getPath().match(/:[a-z]+/gi) || []
+  getPath() {
+    return this.resolvePath()
   }
 
-  findRoute(name) : Route {
+  getScopes() {
+    return this.resolveParts()
+  }
+
+  findRoute( path:string ) : Route | null {
     for (let i = 0, ilen = this.routes.length; i < ilen; i++) {
-      if (this.routes[i].part.basename === name) return this.routes[i]
+      if (this.routes[i].slashname === path) return this.routes[i]
     }
 
     return null
   }
 
-  /**
-   * Return the route from path
-   *
-   * @param {String} path
-   * @returns {Scope}
-   *
-   * @memberof Scope
-   */
-  resolve( path:string ) : Route {
-    const parts = split(path)
-    const name  = parts.pop()
-    const scope = this.resolveScope( join(parts) )
-
-    return (scope && scope.findRoute(name)) || (this.parent && this.parent.resolve(path))
+  findScope( path:string ) : Scope | null {
+    return this.children[path] || null
   }
 
-  /**
-   * Return the scope from path
-   *
-   * @param {String} path
-   * @returns {Scope}
-   *
-   * @memberof Scope
-   */
-  resolveScope( path?:string ) : Scope {
-    if (!path) return this
+  findOrCreate(path:string, parent?:Scope) {
+    let scope = this.findScope(path)
 
-    const parts = split(path)
+    if (scope) return scope
 
-    let scope:Scope = this
+    return new Scope(path, parent)
+  }
 
-    for (let i = 0, ilen = parts.length; i < ilen; i++) {
-      if (scope) {
-        scope = scope.children[slash(parts[i])]
-      }
+  findOrCreateRoute(path:string, closure:(args:any) => void) {
+    let route = this.findRoute(path)
+
+    if (route) {
+      route.closure = closure
+      return route
     }
 
-    return scope || (this.parent && this.parent.resolveScope(path))
+    route = new Route(path, this, closure)
+    this.routes.push( route )
+    return route
   }
 
-  static findByUUID(uuid:string) : Scope {
-    return Scope.SCOPES[uuid]
-  }
+  // part:Part
+  // uuid:string
+  // parent_uuid:string
+  // routes:Route[] = []
+  // children:ScopeChildren = {}
+  // static SCOPES:ScopeChildren = {}
+  // constraint?:(value:string) => boolean
+  // default?:string
+
+  // constructor(path:string, parent?:Scope) {
+  //   this.part = new Part(path)
+  //   this.uuid = guid()
+
+  //   if (parent) this.parent_uuid = parent.uuid
+
+  //   Scope.SCOPES[this.uuid] = this
+  // }
+
+  // get parent() {
+  //   return Scope.findByUUID(this.parent_uuid)
+  // }
+
+  // get has_parameters() {
+  //   return this.getParameters().length > 0
+  // }
+
+  // getParameters() {
+  //   return this.getPath().match(/:[a-z]+/gi) || []
+  // }
+
+  // getPath() : string {
+  //   const scopes:Scope[] = this.getScopes()
+
+  //   const path = join(scopes.map(function(scope) {
+  //     return scope.part.basename
+  //   }))
+
+  //   return slash(path)
+  // }
+
+  // getScopes() : Scope[] {
+  //   const scopes:Scope[] = [ this ]
+  //   let next     = true
+  //   let name:string
+
+  //   let current:Scope = this
+
+  //   while(next) {
+  //     if (current.parent) {
+  //       scopes.unshift(current.parent)
+  //       current = current.parent
+  //       continue
+  //     }
+  //     next = false
+  //   }
+
+  //   return scopes
+  // }
+
+  // findRoute(name) : Route {
+  //   return null
+  // }
+
+  // resolve( path?:string ) : Scope {
+  //   if (!path) return this
+
+  //   const parts = split(path)
+
+  //   let scope:Scope = this
+
+  //   for (let i = 0, ilen = parts.length; i < ilen; i++) {
+  //     if (scope) {
+  //       scope = scope.children[slash(parts[i])]
+  //     }
+  //   }
+
+  //   return scope || (this.parent && this.parent.resolve(path))
+  // }
+
+  // static findByUUID(uuid:string) : Scope {
+  //   return Scope.SCOPES[uuid]
+  // }
 
 }
 

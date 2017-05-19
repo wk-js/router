@@ -18,20 +18,20 @@ class Resolver {
     const route = router.defaultScope.resolve(path)
     let result:ResolverResult = <ResolverResult>{ path: path }
 
-    if (route && !route.has_parameters) {
-      result.route = route
-      return result
-    }
+    // if (route && !route.has_parameters) {
+    //   result.route = route
+    //   return result
+    // }
 
-    const routes = this.getRoutes(router.defaultScope)
+    // const routes = this.getRoutes(router.defaultScope)
 
-    for (let i = 0, ilen = routes.length; i < ilen; i++) {
-      result.args = this.match(routes[i], path)
-      if (result.args) {
-        result.route = routes[i]
-        break
-      }
-    }
+    // for (let i = 0, ilen = routes.length; i < ilen; i++) {
+    //   result.args = this.match(routes[i], path)
+    //   if (result.args) {
+    //     result.route = routes[i]
+    //     break
+    //   }
+    // }
 
     return result
   }
