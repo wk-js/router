@@ -14,7 +14,7 @@ export function slash(path:string) : string {
 }
 
 export function split(path:string) : string[] {
-  return clean(path).split('/')
+  return path.split('/')
 }
 
 export function join(parts:string[]) : string {

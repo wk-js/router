@@ -51,23 +51,28 @@ class Resolver {
   }
 
   getValues(path) {
-    const parts = split(path)
-    const arr   = []
 
-    for (let i = 0; i < parts.length; i++) {
-      if (parts[i] || parts[i].length > 0) arr.push(parts[i])
-    }
+    return split(path)
 
-    return arr
+    // const parts = split(path)
+    // const arr   = []
+
+    // for (let i = 0; i < parts.length; i++) {
+    //   if (parts[i] || parts[i].length > 0) arr.push(parts[i])
+    // }
+
+    // return arr
   }
 
   match(route, path) {
-    const parts = this.getValues(path).map(function(v) {
+    const parts = this.getValues(slash(path)).map(function(v) {
       return new Part(slash(v))
     })
 
     console.log(parts)
-    console.log(route.getScopes().map(function(s) {
+    console.log('--')
+    console.log(route.getScopes().map(function(s:Scope) {
+      console.log(s.uuid)
       return s.part
     }))
 
@@ -79,8 +84,6 @@ class Resolver {
     // const scopes:Scope[] = route.getScopes().slice(1)
 
     // console.log(values, route.name, route_params)
-
-
 
 
     // const args:any = {}

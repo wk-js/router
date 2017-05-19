@@ -8,7 +8,7 @@ class Part {
     this.path = slash(this.path)
 
     const basename = clean(this.path)
-    if (basename.length > 0) this.basename = basename
+    this.basename = basename.length > 0 ? basename : ''
   }
 
   get is_dynamic() {

@@ -1,7 +1,7 @@
 import Route from './route'
 import Scope from './scope'
 import Resolver from './resolver'
-import { trim, split } from './utils/path'
+import { trim, split, clean } from './utils/path'
 
 class Router {
 
@@ -39,7 +39,7 @@ class Router {
 
   scope(path:string, closure:(scope:Scope) => void, options?:any) : Scope {
 
-    const paths = split(path)
+    const paths = split(clean(path))
 
     if (paths.length > 1) {
       return this.split_scope(paths, closure, options)
@@ -61,6 +61,15 @@ class Router {
   }
 
   route(path, closure:(args:any) => void, options?:any) {
+
+    if (path === '/' && this.currentScope.parent) {
+      // console.log(this.currentScope.part.path, this.currentScope.parent)
+      const route = new Route(this.currentScope.part.path, this.currentScope.parent, closure)
+      this._parseOptions( route, options )
+      this.currentScope.parent.routes.push( route )
+      return
+    }
+
     const route = new Route(path, this.currentScope, closure)
     this._parseOptions( route, options )
     this.currentScope.routes.push( route )
