@@ -51,7 +51,8 @@ class Node {
         if (child) {
           child = child.findOrCreate(parts[i])
         } else {
-          child = this.create(parts[i])
+          child = this.find(parts[i])
+          if (!child) child = this.create(parts[i])
         }
       }
     }
