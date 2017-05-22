@@ -57,8 +57,10 @@ class Resolver {
     if (isValid) {
       for (let i = 0, ilen = user_paths.length; i < ilen; i++) {
         if (route_paths[i].is_dynamic) {
-          args[route_paths[i].basename.slice(1)] = user_paths[i].basename
-          continue
+          if (route_paths[i].constraint(user_paths[i].basename)) {
+            args[route_paths[i].basename.slice(1)] = user_paths[i].basename
+            continue
+          }
         } else if (route_paths[i].has_parameter && route_paths[i].basename === user_paths[i].basename) {
           continue
         } else if (route_paths[i].is_root && user_paths[i].is_root) {

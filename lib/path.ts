@@ -24,6 +24,10 @@ class Path {
     return this.basename.length === 0
   }
 
+  constraint(value:string) {
+    return true
+  }
+
   static trim(path:string) : string {
     return path.replace(TRIM_REGEX, '')
   }
