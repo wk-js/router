@@ -3,7 +3,7 @@ import Path from './path'
 
 class Node {
 
-  private _nodes:{ [key:string]: Node } = {}
+  public nodes:{ [key:string]: Node } = {}
 
   children:Node[] = []
 
@@ -27,7 +27,7 @@ class Node {
   }
 
   get parent() : Node | null {
-    return this.is_root ? null : (this.root._nodes[this.parent_uuid] ? this.root._nodes[this.parent_uuid] : this.root)
+    return this.is_root ? null : (this.root.nodes[this.parent_uuid] ? this.root.nodes[this.parent_uuid] : this.root)
   }
 
   find(path:string) : Node | null {
@@ -69,7 +69,7 @@ class Node {
       }
     })
 
-    root._nodes[child.uuid] = child
+    root.nodes[child.uuid] = child
 
     this.children.push( child )
 
@@ -82,7 +82,7 @@ class Node {
     child.parent.children.splice(index, 1)
 
     // Remove from root
-    delete child.root._nodes[child.uuid]
+    delete child.root.nodes[child.uuid]
 
     Object.defineProperty(child, 'root', {
       get() {

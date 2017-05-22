@@ -12,11 +12,17 @@ class Router {
     this.currentScope = this.root
   }
 
-  route(path, closure:() => void) {
-    return this.currentScope.findOrCreate(path, this.currentScope, closure)
+  getRoutes() {
+    return Resolver.getRoutes(this.root).map(function(route) {
+      return route.getPath()
+    })
   }
 
-  scope(path:string, closure:() => void) {
+  route(path, closure:(parameters:any) => void) {
+    return this.currentScope.findOrCreate(path, closure)
+  }
+
+  scope(path:string, closure:(parameters:any) => void) {
 
     const current = this.currentScope
 
@@ -31,10 +37,12 @@ class Router {
   }
 
   go(path:string) {
-    const route = Resolver.resolve(path, this)
+    const result = Resolver.resolve(path, this)
 
-    if (route) {
-      route.closure.call(route)
+    if (result) {
+      const route = result.route
+      const args  = result.args
+      route.closure.call(route, args)
     }
   }
 

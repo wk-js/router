@@ -1,24 +1,23 @@
 import Node from './node'
 
-function NOOP() { console.log(`[Route: "${this.path.slashname}"]`, 'NOOP') }
+function NOOP() { console.log('NOOP') }
 
 class Route extends Node {
 
-  constructor(path, parent:Node, public closure?:() => void) {
+  constructor(path, parent:Node, public closure?:(parameters:any) => void) {
     super(path, parent)
     if (!this.closure) this.closure = NOOP
   }
 
-  create(path:string, parent?:Node, closure?:() => void) : Route {
+  create(path:string, closure?:(parameters:any) => void) : Route {
     const child = new Route(path, this, closure)
     this.addChild(child)
     return child
   }
 
-  findOrCreate(path:string, parent?:Node, closure?:() => void) : Route {
+  findOrCreate(path:string, closure?:(parameters:any) => void) : Route {
     const route = super.findOrCreate(path) as Route
-    if (parent)  route.parent_uuid = parent.uuid
-    if (closure) route.closure     = closure
+    if (closure) route.closure = closure
     return route
   }
 

@@ -15,3 +15,16 @@ router.route('/hello', function() {
 })
 
 router.go('/hello')
+
+// router.scope('/:country', function() {
+//   router.route('/:locale', function(parameters) {
+//   })
+// })
+
+router.route('/:country/:locale', function(parameters) {
+  console.log('HOME', parameters)
+})
+
+router.go('/FR/fr')
+
+console.log(router.getRoutes())
