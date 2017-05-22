@@ -1,39 +1,27 @@
-import Scope from './scope'
-import Part from './part'
-import { guid } from './utils/guid'
-import { slash, join } from './utils/path'
+import Node from './node'
 
-class Route extends Part {
+function NOOP() { console.log(`[Route: "${this.path.slashname}"]`, 'NOOP') }
 
-  constructor(path:string, parent:Scope, public closure:(args:any) => void) {
-    super(path, parent.uuid)
+class Route extends Node {
+
+  constructor(path, parent:Node, public closure?:() => void) {
+    super(path, parent)
+    if (!this.closure) this.closure = NOOP
   }
 
-  // part:Part
-  // uuid:string
-  // scope_uuid:string
-  // redirect:boolean = false
-  // constraint?:(value:string) => boolean
-  // default?:string
+  create(path:string, parent?:Node, closure?:() => void) : Route {
+    const child = new Route(path, this, closure)
+    this.addChild(child)
+    return child
+  }
 
-  // constructor(path:string, scope:Scope, public closure:(args:any) => void) {
-  //   this.part = new Part(path)
-  //   this.uuid = guid()
+  findOrCreate(path:string, parent?:Node, closure?:() => void) : Route {
+    const route = super.findOrCreate(path) as Route
+    if (parent)  route.parent_uuid = parent.uuid
+    if (closure) route.closure     = closure
+    return route
+  }
 
-  //   this.scope_uuid = scope.uuid
-  // }
-
-  // get scope() : Scope | null {
-  //   return Scope.findByUUID(this.scope_uuid)
-  // }
-
-  // getPath() : string {
-  //   let path = this.scope.getPath()
-  //   return slash(join( [ path, this.part.path ] ))
-  // }
-  // getParameters() {
-  //   return this.getPath().match(/:[a-z]+/gi) || []
-  // }
 }
 
 export default Route
