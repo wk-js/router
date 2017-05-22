@@ -10,7 +10,7 @@ interface ResolverResult {
 
 class Resolver {
 
-  static resolve(path:string, router:Router) : ResolverResult {
+  static resolve(path:string, router:Router, options?:any) : ResolverResult {
     // Check with the root
     let result:ResolverResult = this.match(path, router.root)
 
@@ -20,9 +20,13 @@ class Resolver {
       // Search in every routes
       const route = router.root.find(path) as Route
       if (route) {
-        result = { path, route }
-        result.args  = {}
-        return result
+        const parameters = options && options.parameters ? options.parameters : {}
+
+        for (const key in parameters) {
+          path = path.replace(':'+key, parameters[key])
+        }
+
+        return this.match(path, route)
       }
     }
 
@@ -56,12 +60,12 @@ class Resolver {
 
     if (isValid) {
       for (let i = 0, ilen = user_paths.length; i < ilen; i++) {
-        if (route_paths[i].is_dynamic) {
+        if (route_paths[i].is_dynamic && route_paths[i].basename !== user_paths[i].basename) {
           if (route_paths[i].constraint(user_paths[i].basename)) {
             args[route_paths[i].basename.slice(1)] = user_paths[i].basename
             continue
           }
-        } else if (route_paths[i].has_parameter && route_paths[i].basename === user_paths[i].basename) {
+        } else if (!route_paths[i].is_dynamic && route_paths[i].has_parameter && route_paths[i].basename === user_paths[i].basename) {
           continue
         } else if (route_paths[i].is_root && user_paths[i].is_root) {
           continue

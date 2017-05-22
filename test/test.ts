@@ -55,6 +55,6 @@ router.route('/', function() {
 
 
 router.go('/FR/fr')
-// router.go('/:country/:locale', { country: 'FR', locale: 'fr' })
+router.go('/:country/:locale', { parameters: { country: 'FR', locale: 'fr' } })
 
 console.log(router.getRoutes())

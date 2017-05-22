@@ -104,8 +104,8 @@ class Router {
     }
   }
 
-  go(path:string) {
-    const result = Resolver.resolve(path, this)
+  go(path:string, options?:any) {
+    const result = Resolver.resolve(path, this, options)
 
     if (result) {
       const route = result.route
