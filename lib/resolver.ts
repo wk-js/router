@@ -11,19 +11,23 @@ interface ResolverResult {
 class Resolver {
 
   static resolve(path:string, router:Router) : ResolverResult {
-    const route = router.root.find(path) as Route
+    // Check with the root
+    let result:ResolverResult = this.match(path, router.root)
 
-    let result:ResolverResult = { path: path } as ResolverResult
-
-    if (route) {
-      result.route = route
-      result.args  = {}
+    if (result) {
       return result
+    } else {
+      // Search in every routes
+      const route = router.root.find(path) as Route
+      if (route) {
+        result = { path, route }
+        result.args  = {}
+        return result
+      }
     }
 
-    // TODO: See dynamic property part
+    // Search in every routes (advanced)
     const routes = Resolver.getRoutes(router.root)
-    result = null
 
     for (let i = 0, ilen = routes.length; i < ilen; i++) {
       result = Resolver.match(path, routes[i])
@@ -40,7 +44,7 @@ class Resolver {
   }
 
   static match(path:string, route:Route) : ResolverResult {
-    const user_paths = Path.split(Path.slash(path)).map(function(str) {
+    const user_paths = Path.split(Path.clean(path)).map(function(str) {
       return new Path(str)
     })
 

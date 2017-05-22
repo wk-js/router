@@ -8,21 +8,24 @@ router.scope('/hello', function() {
   })
 })
 
-router.go('/hello')
+// router.go('/hello')
 
 router.route('/hello', function() {
   console.log('Hello John!')
 })
 
-router.go('/hello')
+// router.go('/hello')
 
-// router.scope('/:country', function() {
-//   router.route('/:locale', function(parameters) {
-//   })
-// })
+router.scope('/:country/:locale', function() {
 
-router.route('/:country/:locale', function(parameters) {
-  console.log('HOME', parameters)
+  router.route('/', function(parameters) {
+    console.log('HOME', parameters)
+  })
+
+})
+
+router.route('/', function() {
+  console.log('home home')
 })
 
 router.go('/FR/fr')

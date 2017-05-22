@@ -19,7 +19,11 @@ class Router {
   }
 
   route(path, closure:(parameters:any) => void) {
-    return this.currentScope.findOrCreate(path, closure)
+    if (!path || path.length === 0 || path === '/') {
+      this.currentScope.closure = closure
+    } else {
+      return this.currentScope.findOrCreate(path, closure)
+    }
   }
 
   scope(path:string, closure:(parameters:any) => void) {

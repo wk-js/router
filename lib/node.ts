@@ -116,7 +116,7 @@ class Node {
     let current:Node = this
 
     while(next) {
-      if (current.parent) {
+      if (current.parent && !current.parent.is_root) {
         parts.unshift(current.parent.path)
         current = current.parent
         continue
