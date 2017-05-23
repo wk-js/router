@@ -29,8 +29,9 @@ class Router {
       route = this.currentScope.findOrCreate(path, closure)
     }
 
-    if (options && options.constraint) this.addConstraint(route, options.constraint)
-    if (options && options.concern)    this.addConcern(route, options.concern)
+    if (options && options.constraint)   this.constraint(route, options.constraint)
+    if (options && options.concern)      this.concern(route, options.concern)
+    if (options && options.defaultValue) this.default(route, options.defaultValue)
 
     return route
   }
@@ -49,11 +50,11 @@ class Router {
     return scope
   }
 
-  concern(name:string, closure:() => void) {
+  createConcern(name:string, closure:() => void) {
     this.concerns[name] = closure
   }
 
-  addConstraint(pathOrRoute:string | Route, constraint:((value:string) => boolean)|RegExp|string) {
+  constraint(pathOrRoute:string | Route, constraint:((value:string) => boolean)|RegExp|string) {
 
     let route:Route
 
@@ -81,7 +82,7 @@ class Router {
     route.path.constraint = constraint as ((value:string) => boolean)
   }
 
-  addConcern(pathOrRoute:string | Route, concern:string|string[]) {
+  concern(pathOrRoute:string | Route, concern:string|string[]) {
     let route:Route
 
     if (typeof pathOrRoute === 'string') {
@@ -102,6 +103,18 @@ class Router {
         this.currentScope = current
       }
     }
+  }
+
+  default(pathOrRoute:string | Route, defaultValue:string) {
+    let route:Route
+
+    if (typeof pathOrRoute === 'string') {
+      route = this.currentScope.findOrCreate(pathOrRoute as string)
+    } else {
+      route = pathOrRoute
+    }
+
+    route.path.defaultValue = defaultValue
   }
 
   go(path:string, options?:any) {

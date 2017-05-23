@@ -59,15 +59,27 @@ class Resolver {
     let isValid = sameLength
 
     if (isValid) {
+      let rPath, uPath, basename, route_basename
+
       for (let i = 0, ilen = user_paths.length; i < ilen; i++) {
-        if (route_paths[i].is_dynamic && route_paths[i].basename !== user_paths[i].basename) {
-          if (route_paths[i].constraint(user_paths[i].basename)) {
-            args[route_paths[i].basename.slice(1)] = user_paths[i].basename
+        uPath = user_paths[i]
+        rPath = route_paths[i]
+
+        basename       = uPath.basename
+        route_basename = rPath.basename
+
+        if (route_basename === basename && rPath.defaultValue) {
+          basename = rPath.defaultValue
+        }
+
+        if (rPath.is_dynamic && route_basename !== basename) {
+          if (rPath.constraint(basename)) {
+            args[route_basename.slice(1)] = basename
             continue
           }
-        } else if (!route_paths[i].is_dynamic && route_paths[i].has_parameter && route_paths[i].basename === user_paths[i].basename) {
+        } else if (!rPath.is_dynamic && rPath.has_parameter && route_basename === basename) {
           continue
-        } else if (route_paths[i].is_root && user_paths[i].is_root) {
+        } else if (rPath.is_root && uPath.is_root) {
           continue
         }
 

@@ -16,7 +16,7 @@ router.route('/hello', function() {
 
 // router.go('/hello')
 
-router.concern('errors', function() {
+router.createConcern('errors', function() {
 
   router.route('404', function() {
     console.log('404')
@@ -28,7 +28,7 @@ router.concern('errors', function() {
 
 })
 
-router.concern('classic', function() {
+router.createConcern('classic', function() {
 
   router.route('contact', function() {
     console.log('contact')
@@ -40,7 +40,7 @@ router.concern('classic', function() {
 
 })
 
-router.addConcern('/:country', [ 'errors' ])
+router.concern('/:country', [ 'errors' ])
 router.scope('/:country/:locale', function() {
 
   router.route('/', function(parameters) {
@@ -53,8 +53,11 @@ router.route('/', function() {
   console.log('home home')
 })
 
+router.default('/:country', 'FR')
+router.default('/:country/:locale', 'fr')
 
-router.go('/FR/fr')
-router.go('/:country/:locale', { parameters: { country: 'FR', locale: 'fr' } })
+router.go('/GB/en') // /GB/en
+router.go('/:country/:locale') // By default: /FR/fr
+router.go('/:country/:locale', { parameters: { country: 'US', locale: 'en' } }) // /US/en
 
 console.log(router.getRoutes())

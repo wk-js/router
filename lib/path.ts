@@ -6,6 +6,7 @@ class Path {
 
   public slashname:string
   public basename:string
+  public defaultValue:string
 
   constructor(path:string) {
     this.slashname = Path.slash(path)
