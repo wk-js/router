@@ -1,5 +1,4 @@
-* [x] Add defaults to parameters
-* [x] Add concerns
 * [ ] Add forward-backward
 * [ ] Handle history
-* [x] Multi-scope creation
+* [ ] Handle url parameters (eg.: ?name=John&active&something=cool)
+* [ ] Enhance route name
