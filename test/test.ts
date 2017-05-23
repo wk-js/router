@@ -2,20 +2,24 @@ import Router from '../lib/router'
 
 const router = new Router
 
-router.scope('/hello', function() {
-  router.route('/world', function() {
-    console.log('Hello World !')
-  })
-})
-
-// router.go('/hello')
-
+// Create a route
 router.route('/hello', function() {
   console.log('Hello John!')
 })
 
-// router.go('/hello')
+// Create a scope with a route
+router.scope('/hello', function() {
+  router.route('/world', function() {
+    console.log('Hello Lord !')
+  })
+})
 
+// Override route or scope
+router.route('/hello/world', function() {
+  console.log('Hello World')
+})
+
+// Create concern
 router.createConcern('errors', function() {
 
   router.route('404', function() {
@@ -28,7 +32,7 @@ router.createConcern('errors', function() {
 
 })
 
-router.createConcern('classic', function() {
+router.createConcern('common', function() {
 
   router.route('contact', function() {
     console.log('contact')
@@ -40,7 +44,9 @@ router.createConcern('classic', function() {
 
 })
 
-router.concern('/:country', [ 'errors' ])
+router.concern('/:country', [ 'errors', 'common' ])
+
+// Scope with default route
 router.scope('/:country/:locale', function() {
 
   router.route('/', function(parameters) {
@@ -53,6 +59,7 @@ router.route('/', function() {
   console.log('home home')
 })
 
+// Set default
 router.default('/:country', 'FR')
 router.default('/:country/:locale', 'fr')
 
@@ -60,4 +67,17 @@ router.go('/GB/en') // /GB/en
 router.go('/:country/:locale') // By default: /FR/fr
 router.go('/:country/:locale', { parameters: { country: 'US', locale: 'en' } }) // /US/en
 
+// Redirection
+router.redirect('/lol', '/hello')
+
+router.go('/lol')
+
+// Naming routes
+router.route('/:country/:locale/legals', function(parameters) {
+  console.log('Legals', parameters)
+}, { name: "mentions legales" })
+
+router.go('mentions legales')
+
+// List routes
 console.log(router.getRoutes())

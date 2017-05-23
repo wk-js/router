@@ -1,3 +1,4 @@
+import Path from './path'
 import Node from './node'
 import Route from './route'
 import Resolver from './resolver'
@@ -7,6 +8,7 @@ class Router {
   public root:Route
   public currentScope:Route
   public concerns = {}
+  public references = {}
 
   constructor() {
     this.root = new Route('/', null)
@@ -15,11 +17,11 @@ class Router {
 
   getRoutes() {
     return Resolver.getRoutes(this.root).map(function(route) {
-      return route.getPath()
+      return Path.slash(route.getPath())
     })
   }
 
-  route(path, closure:(parameters:any) => void, options?:any) {
+  route(path:string, closure:(parameters:any) => void, options?:any) {
     let route:Route
 
     if (!path || path.length === 0 || path === '/') {
@@ -32,6 +34,7 @@ class Router {
     if (options && options.constraint)   this.constraint(route, options.constraint)
     if (options && options.concern)      this.concern(route, options.concern)
     if (options && options.defaultValue) this.default(route, options.defaultValue)
+    if (options && options.name)         this.name(route, options.name)
 
     return route
   }
@@ -48,10 +51,6 @@ class Router {
     this.currentScope = current
 
     return scope
-  }
-
-  createConcern(name:string, closure:() => void) {
-    this.concerns[name] = closure
   }
 
   constraint(pathOrRoute:string | Route, constraint:((value:string) => boolean)|RegExp|string) {
@@ -80,6 +79,10 @@ class Router {
     }
 
     route.path.constraint = constraint as ((value:string) => boolean)
+  }
+
+  createConcern(name:string, closure:() => void) {
+    this.concerns[name] = closure
   }
 
   concern(pathOrRoute:string | Route, concern:string|string[]) {
@@ -115,6 +118,25 @@ class Router {
     }
 
     route.path.defaultValue = defaultValue
+  }
+
+  redirect(path:string, redirect_path:string, options?:any) {
+    return this.route(path, () => {
+      this.go(redirect_path, options)
+    })
+  }
+
+  name(pathOrRoute:string | Route, name:string) {
+
+    let route:Route
+
+    if (typeof pathOrRoute === 'string') {
+      route = this.currentScope.findOrCreate(pathOrRoute as string)
+    } else {
+      route = pathOrRoute
+    }
+
+    this.references[name] = route
   }
 
   go(path:string, options?:any) {

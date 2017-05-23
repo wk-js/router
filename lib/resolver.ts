@@ -11,34 +11,75 @@ interface ResolverResult {
 class Resolver {
 
   static resolve(path:string, router:Router, options?:any) : ResolverResult {
-    // Check with the root
-    let result:ResolverResult = this.match(path, router.root)
 
-    if (result) {
-      return result
-    } else {
-      // Search in every routes
-      const route = router.root.find(path) as Route
-      if (route) {
-        const parameters = options && options.parameters ? options.parameters : {}
+    // Search by name
+    let result:ResolverResult, route:Route
 
-        for (const key in parameters) {
-          path = path.replace(':'+key, parameters[key])
-        }
+    // Check with root
+    if (!result) {
+      result = Resolver._resolveByRoute(path, router.root, options)
+    }
 
-        return this.match(path, route)
+    // Check with references
+    if (!result) {
+      route = router.references[path]
+      if (route) return Resolver._resolveByRoute(route.getPath(), route, options)
+    }
+
+    // Check with children
+    if (!result) {
+      route = router.root.find(path) as Route
+      if (route) result = Resolver._resolveByRoute(path, route, options)
+    }
+
+    // Check with every routes
+    if (!result) {
+      const routes = Resolver.getRoutes(router.root)
+
+      for (let i = 0, ilen = routes.length; i < ilen; i++) {
+        route = routes[i]
+        result = Resolver._resolveByRoute(path, route, options)
+        if (result) break
       }
     }
 
-    // Search in every routes (advanced)
-    const routes = Resolver.getRoutes(router.root)
-
-    for (let i = 0, ilen = routes.length; i < ilen; i++) {
-      result = Resolver.match(path, routes[i])
-      if (result) break
-    }
-
     return result
+
+    // // Check by name
+    // let route:Route = router.references[path]
+
+    // if (route) {
+    //   return Resolver.match(route.getPath(), route)
+    // }
+
+    // // Check with the root
+    // let result:ResolverResult = Resolver.match(path, router.root)
+
+    // if (result) {
+    //   return result
+    // } else {
+    //   // Search in every routes
+    //   route = router.root.find(path) as Route
+    //   if (route) {
+    //     const parameters = options && options.parameters ? options.parameters : {}
+
+    //     for (const key in parameters) {
+    //       path = path.replace(':'+key, parameters[key])
+    //     }
+
+    //     return Resolver.match(path, route)
+    //   }
+    // }
+
+    // // Search in every routes (advanced)
+    // const routes = Resolver.getRoutes(router.root)
+
+    // for (let i = 0, ilen = routes.length; i < ilen; i++) {
+    //   result = Resolver.match(path, routes[i])
+    //   if (result) break
+    // }
+
+    // return result
   }
 
   static getRoutes(root:Route) {
@@ -92,6 +133,15 @@ class Resolver {
     return null
   }
 
+  private static _resolveByRoute(path:string, route:Route, options?:any) : ResolverResult | null {
+    const parameters = options && options.parameters ? options.parameters : {}
+
+    for (const key in parameters) {
+      path = path.replace(':'+key, parameters[key])
+    }
+
+    return Resolver.match(path, route)
+  }
 }
 
 export default Resolver
