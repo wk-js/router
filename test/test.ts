@@ -34,23 +34,24 @@ router.createConcern('errors', function() {
 
 router.createConcern('common', function() {
 
-  router.route('contact', function() {
-    console.log('contact')
+  router.route('contact', function(parameters) {
+    console.log('Contact', parameters)
   })
 
-  router.route('about', function() {
-    console.log('about')
+  router.route('about', function(parameters) {
+    console.log('About', parameters)
   })
 
 })
 
-router.concern('/:country', [ 'errors', 'common' ])
+router.concern('/:country/:locale', [ 'errors', 'common' ])
 
 // Scope with default route
 router.scope('/:country/:locale', function() {
 
   router.route('/', function(parameters) {
-    console.log('HOME', parameters)
+    if (parameters.locale === 'en') console.log('Home', parameters)
+    if (parameters.locale === 'fr') console.log('Accueil', parameters)
   })
 
 })
@@ -66,6 +67,7 @@ router.default('/:country/:locale', 'fr')
 router.go('/GB/en') // /GB/en
 router.go('/:country/:locale') // By default: /FR/fr
 router.go('/:country/:locale', { parameters: { country: 'US', locale: 'en' } }) // /US/en
+router.go('/FR/fr/contact')
 
 // Redirection
 router.redirect('/lol', '/hello')
