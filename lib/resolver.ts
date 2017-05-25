@@ -71,10 +71,6 @@ class Resolver {
         basename       = uPath.basename
         route_basename = rPath.basename
 
-        if (route_basename === basename && rPath.defaultValue) {
-          basename = rPath.defaultValue
-        }
-
         if (rPath.is_dynamic && route_basename !== basename) {
           if (rPath.constraint(basename)) {
             args[route_basename.slice(1)] = basename
@@ -89,7 +85,7 @@ class Resolver {
         isValid = false
       }
 
-      return isValid ? { args, route, path } : null
+      return isValid ? { args, route, path: Path.slash(path) } : null
     }
 
     return null
@@ -97,9 +93,16 @@ class Resolver {
 
   private static _resolveByRoute(path:string, route:Route, options?:any) : ResolverResult | null {
     const parameters = options && options.parameters ? options.parameters : {}
+    const paths = route.getPaths()
 
     for (const key in parameters) {
       path = path.replace(':'+key, parameters[key])
+    }
+
+    for (let i = 0, ilen = paths.length; i < ilen; i++) {
+      if (paths[i].is_dynamic && paths[i].defaultValue) {
+        path = path.replace(paths[i].basename, paths[i].defaultValue)
+      }
     }
 
     return Resolver.match(path, route)

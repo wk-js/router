@@ -52,6 +52,8 @@ router.scope('/:country/:locale', function() {
   router.route('/', function(parameters) {
     if (parameters.locale === 'en') console.log('Home', parameters)
     if (parameters.locale === 'fr') console.log('Accueil', parameters)
+    if (parameters.locale === 'es') console.log('Recepción', parameters)
+    if (parameters.locale === 'pl') console.log('Powitanie', parameters)
   })
 
 })
@@ -64,22 +66,30 @@ router.route('/', function() {
 router.default('/:country', 'FR')
 router.default('/:country/:locale', 'fr')
 
-router.go('/GB/en') // /GB/en
-router.go('/:country/:locale') // By default: /FR/fr
-router.go('/:country/:locale', { parameters: { country: 'US', locale: 'en' } }) // /US/en
-router.go('/FR/fr/contact')
+// router.go('/GB/en') // /GB/en
+// router.go('/:country/:locale') // By default: /FR/fr
+// router.go('/:country/:locale', { parameters: { country: 'US', locale: 'en' } }) // /US/en
+// router.go('/FR/fr/contact')
 
 // Redirection
 router.redirect('/lol', '/hello')
 
-router.go('/lol')
+// router.go('/lol')
 
 // Naming routes
 router.route('/:country/:locale/legals', function(parameters) {
   console.log('Legals', parameters)
 }, { name: "mentions legales" })
 
-router.go('mentions legales')
+// router.go('mentions legales')
+// router.backward()
+// router.backward()
+// router.forward()
+
+router.go('/FR/fr')
+router.go('/GB/en')
+router.go('/PL/pl')
+router.replace('/ES/es')
 
 // List routes
-console.log(router.getRoutes())
+// console.log(router.getRoutes())

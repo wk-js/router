@@ -1,9 +1,10 @@
 import Path from './path'
 import Node from './node'
 import Route from './route'
+import Stack from './stack'
 import Resolver from './resolver'
 
-class Router {
+class Router extends Stack {
 
   public root:Route
   public currentScope:Route
@@ -11,6 +12,8 @@ class Router {
   public references = {}
 
   constructor() {
+    super('/')
+
     this.root = new Route('/', null)
     this.currentScope = this.root
   }
@@ -140,7 +143,37 @@ class Router {
   }
 
   go(path:string, options?:any) {
+    options = Object.assign({}, options || {})
+
     const result = Resolver.resolve(path, this, options)
+
+    if (result && super.go(result.path, options.force)) {
+      const route = result.route
+      const args  = result.args
+      if (!options.ignoreClosure) route.closure.call(route, args)
+
+      return true
+    }
+
+    return false
+  }
+
+  forward() {
+    super.forward()
+
+    const result = Resolver.resolve(this.path, this)
+
+    if (result) {
+      const route = result.route
+      const args  = result.args
+      route.closure.call(route, args)
+    }
+  }
+
+  backward() {
+    super.backward()
+
+    const result = Resolver.resolve(this.path, this)
 
     if (result) {
       const route = result.route
