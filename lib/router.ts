@@ -1,21 +1,25 @@
+import { EventEmitter } from 'eventemitter3'
 import Path from './path'
 import Node from './node'
 import Route from './route'
 import Stack from './stack'
 import Resolver from './resolver'
+import Extension from './extensions/_extension'
 
 class Router {
 
   public root:Route
   public stack:Stack
+  public events:EventEmitter
   public currentScope:Route
   public concerns = {}
-  public references = {}
-  public plugins = []
+  public extensions = []
 
   constructor() {
-    this.root  = new Route('/', null)
-    this.stack = new Stack('/')
+    this.root   = new Route('/', null)
+    this.stack  = new Stack('/')
+    this.events = new EventEmitter
+
     this.currentScope = this.root
   }
 
@@ -26,6 +30,8 @@ class Router {
   }
 
   route(path:string, closure:(parameters:any) => void, options?:any) {
+    options = options || {}
+
     let route:Route
 
     if (!path || path.length === 0 || path === '/') {
@@ -35,10 +41,13 @@ class Router {
       route = this.currentScope.findOrCreate(path, closure)
     }
 
-    if (options && options.constraint)   this.constraint(route, options.constraint)
-    if (options && options.concern)      this.concern(route, options.concern)
-    if (options && options.defaultValue) this.default(route, options.defaultValue)
-    if (options && options.name)         this.name(route, options.name)
+    if (options.constraint)   this.constraint(route, options.constraint)
+    if (options.defaultValue) this.default(route, options.defaultValue)
+
+    // Set extension parameters
+    for (let i = 0, ilen = this.extensions.length; i < ilen; i++) {
+      if (options[this.extensions[i].name]) this.extensions[i].set( route, options[this.extensions[i].name] )
+    }
 
     return route
   }
@@ -85,33 +94,6 @@ class Router {
     route.path.constraint = constraint as ((value:string) => boolean)
   }
 
-  createConcern(name:string, closure:() => void) {
-    this.concerns[name] = closure
-  }
-
-  concern(pathOrRoute:string | Route, concern:string|string[]) {
-    let route:Route
-
-    if (typeof pathOrRoute === 'string') {
-      route = this.currentScope.findOrCreate(pathOrRoute as string)
-    } else {
-      route = pathOrRoute
-    }
-
-    if (typeof concern === 'string') concern = [ concern ]
-
-    for (let i = 0, ilen = concern.length; i < ilen; i++) {
-      const closure = this.concerns[concern[i]]
-
-      if (closure) {
-        const current = this.currentScope
-        this.currentScope = route
-        closure()
-        this.currentScope = current
-      }
-    }
-  }
-
   default(pathOrRoute:string | Route, defaultValue:string) {
     let route:Route
 
@@ -124,23 +106,10 @@ class Router {
     route.path.defaultValue = defaultValue
   }
 
-  redirect(path:string, redirect_path:string, options?:any) {
-    return this.route(path, () => {
-      this.go(redirect_path, options)
-    })
-  }
-
-  name(pathOrRoute:string | Route, name:string) {
-
-    let route:Route
-
-    if (typeof pathOrRoute === 'string') {
-      route = this.currentScope.findOrCreate(pathOrRoute as string)
-    } else {
-      route = pathOrRoute
-    }
-
-    this.references[name] = route
+  extension(ExtensionClass) : Extension {
+    const extension = new ExtensionClass(this)
+    this.extensions.push( extension )
+    return extension
   }
 
   go(path:string, options?:any) {
@@ -194,9 +163,9 @@ class Router {
   updatePath() {
     const valid = this.stack.updatePath()
 
-    this.plugins.forEach((plugin) => {
-      if (plugin.update) plugin.update(this.stack.path)
-    })
+    // this.plugins.forEach((plugin) => {
+    //   if (plugin.update) plugin.update(this.stack.path)
+    // })
 
     return valid
   }

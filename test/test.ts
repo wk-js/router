@@ -1,6 +1,13 @@
 import Router from '../lib/router'
+import ConcernExtension from '../lib/extensions/concern'
+import RedirectExtension from '../lib/extensions/redirect'
+import ReferenceExtension from '../lib/extensions/reference'
 
 const router = new Router
+
+const concern   = router.extension( ConcernExtension ) as ConcernExtension
+const redirect  = router.extension( RedirectExtension ) as RedirectExtension
+const reference = router.extension( ReferenceExtension ) as ReferenceExtension
 
 // Create a route
 router.route('/hello', function() {
@@ -20,7 +27,7 @@ router.route('/hello/world', function() {
 })
 
 // Create concern
-router.createConcern('errors', function() {
+concern.create('errors', function() {
 
   router.route('404', function() {
     console.log('404')
@@ -32,7 +39,7 @@ router.createConcern('errors', function() {
 
 })
 
-router.createConcern('common', function() {
+concern.create('common', function() {
 
   router.route('contact', function(parameters) {
     console.log('Contact', parameters)
@@ -44,7 +51,7 @@ router.createConcern('common', function() {
 
 })
 
-router.concern('/:country/:locale', [ 'errors', 'common' ])
+concern.set('/:country/:locale', [ 'errors', 'common' ])
 
 // Scope with default route
 router.scope('/:country/:locale', function() {
@@ -72,14 +79,14 @@ router.default('/:country/:locale', 'fr')
 // router.go('/FR/fr/contact')
 
 // Redirection
-router.redirect('/lol', '/hello')
+redirect.set('/redirect', { path: '/hello' })
 
 // router.go('/lol')
 
 // Naming routes
 router.route('/:country/:locale/legals', function(parameters) {
   console.log('Legals', parameters)
-}, { name: "mentions legales" })
+}, { reference: 'mentions_legales' })
 
 // router.go('mentions legales')
 // router.backward()
@@ -87,9 +94,12 @@ router.route('/:country/:locale/legals', function(parameters) {
 // router.forward()
 
 router.go('/FR/fr')
-router.go('/GB/en')
-router.go('/PL/pl')
-router.replace('/ES/es')
+router.go('/FR/fr/about')
+router.go('mentions_legales')
+router.go('/redirect')
+// router.go('/GB/en')
+// router.go('/PL/pl')
+// router.replace('/ES/es')
 
 // List routes
 // console.log(router.getRoutes())

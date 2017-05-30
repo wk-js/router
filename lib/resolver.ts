@@ -12,16 +12,19 @@ class Resolver {
 
   static resolve(path:string, router:Router, options?:any) : ResolverResult {
 
-    // Search by name
     let result:ResolverResult, route:Route
 
     // Check with root
     result = Resolver._resolveByRoute(path, router.root, options)
 
-    // Check with references
+    // Check with extensions resolve() method
     if (!result) {
-      route = router.references[path]
-      if (route) return Resolver._resolveByRoute(route.getPath(), route, options)
+      for (let i = 0, ilen = router.extensions.length; i < ilen; i++) {
+        route = router.extensions[i].resolve(path, options)
+        if (route) {
+          return Resolver._resolveByRoute(route.getPath(), route, options)
+        }
+      }
     }
 
     // Check with children
