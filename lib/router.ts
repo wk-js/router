@@ -4,17 +4,18 @@ import Route from './route'
 import Stack from './stack'
 import Resolver from './resolver'
 
-class Router extends Stack {
+class Router {
 
   public root:Route
+  public stack:Stack
   public currentScope:Route
   public concerns = {}
   public references = {}
+  public plugins = []
 
   constructor() {
-    super('/')
-
-    this.root = new Route('/', null)
+    this.root  = new Route('/', null)
+    this.stack = new Stack('/')
     this.currentScope = this.root
   }
 
@@ -147,7 +148,7 @@ class Router extends Stack {
 
     const result = Resolver.resolve(path, this, options)
 
-    if (result && super.go(result.path, options.force)) {
+    if (result && (this.stack.go(result.path) || options.force)) {
       const route = result.route
       const args  = result.args
       if (!options.ignoreClosure) route.closure.call(route, args)
@@ -159,27 +160,45 @@ class Router extends Stack {
   }
 
   forward() {
-    super.forward()
+    const valid = this.stack.forward()
 
-    const result = Resolver.resolve(this.path, this)
+    const result = Resolver.resolve(this.stack.path, this)
 
-    if (result) {
+    if (result && valid) {
       const route = result.route
       const args  = result.args
       route.closure.call(route, args)
+
+      return true
     }
+
+    return false
   }
 
   backward() {
-    super.backward()
+    const valid = this.stack.backward()
 
-    const result = Resolver.resolve(this.path, this)
+    const result = Resolver.resolve(this.stack.path, this)
 
-    if (result) {
+    if (result && valid) {
       const route = result.route
       const args  = result.args
       route.closure.call(route, args)
+
+      return true
     }
+
+    return false
+  }
+
+  updatePath() {
+    const valid = this.stack.updatePath()
+
+    this.plugins.forEach((plugin) => {
+      if (plugin.update) plugin.update(this.stack.path)
+    })
+
+    return valid
   }
 
 }

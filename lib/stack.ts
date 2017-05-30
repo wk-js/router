@@ -4,23 +4,21 @@ class Stack {
 
   public index:number
   public path:string
-  public stack:string[]
+  public paths:string[]
 
   constructor(path:string) {
     this.path  = Path.slash(path)
-    this.stack = [ this.path ]
-    this.index = this.stack.length - 1
+    this.paths = [ this.path ]
+    this.index = this.paths.length - 1
   }
 
-  go(path, options?:any) {
-    options = options || {}
-
+  go(path) : boolean {
     path = Path.slash(path)
 
-    if (path !== this.path || options.force) {
-      const deleteCount = Math.max(this.stack.length - this.index - 1, 0)
-      this.stack.splice(this.index+1, deleteCount, path)
-      this.index = this.stack.length - 1
+    if (path !== this.path) {
+      const deleteCount = Math.max(this.paths.length - this.index - 1, 0)
+      this.paths.splice(this.index+1, deleteCount, path)
+      this.index = this.paths.length - 1
       this.updatePath()
       return true
     }
@@ -28,26 +26,26 @@ class Stack {
     return false
   }
 
-  replace(path, options?:any) {
+  replace(path) : boolean {
     this.index = Math.max(this.index-1, 0)
-    this.go(path, options)
+    return this.go(path)
   }
 
-  forward() {
-    this.index = Math.min(this.index+1, this.stack.length-1)
-    this.updatePath()
+  forward() : boolean {
+    this.index = Math.min(this.index+1, this.paths.length-1)
+    return this.updatePath()
   }
 
-  backward() {
+  backward() : boolean {
     this.index = Math.max(this.index-1, 0)
-    this.updatePath()
+    return this.updatePath()
   }
 
-  updatePath() {
-    if (this.path === this.stack[this.index])
+  updatePath() : boolean {
+    if (this.path === this.paths[this.index])
       return false
 
-    this.path = this.stack[this.index]
+    this.path = this.paths[this.index]
 
     return true
   }
