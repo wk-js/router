@@ -115,6 +115,11 @@ class Router {
   go(path:string, options?:any) {
     options = Object.assign({}, options || {})
 
+    if (options.redirect) {
+      const redirect = options.redirect
+      return this.go(redirect.path, redirect.options)
+    }
+
     const result = Resolver.resolve(path, this, options)
 
     if (result && (this.stack.go(result.path) || options.force)) {
@@ -129,35 +134,34 @@ class Router {
   }
 
   forward() {
-    const valid = this.stack.forward()
+    if (this.stack.forward()) this.go(this.stack.path, { force: true })
 
-    const result = Resolver.resolve(this.stack.path, this)
+    // const result = Resolver.resolve(this.stack.path, this)
 
-    if (result && valid) {
-      const route = result.route
-      const args  = result.args
-      route.closure.call(route, args)
+    // if (result && valid) {
+    //   const route = result.route
+    //   const args  = result.args
+    //   route.closure.call(route, args)
 
-      return true
-    }
+    //   return true
+    // }
 
-    return false
+    // return false
   }
 
   backward() {
-    const valid = this.stack.backward()
+    if (this.stack.backward()) this.go(this.stack.path, { force: true })
+    // const result = Resolver.resolve(this.stack.path, this)
 
-    const result = Resolver.resolve(this.stack.path, this)
+    // if (result && valid) {
+    //   const route = result.route
+    //   const args  = result.args
+    //   route.closure.call(route, args)
 
-    if (result && valid) {
-      const route = result.route
-      const args  = result.args
-      route.closure.call(route, args)
+    //   return true
+    // }
 
-      return true
-    }
-
-    return false
+    // return false
   }
 
   updatePath() {
