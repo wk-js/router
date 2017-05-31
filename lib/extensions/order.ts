@@ -7,22 +7,14 @@ class Order extends Extension {
   public name: string = 'order'
 
   set(pathOrRoute: string | Route, index?: number): Route {
-    let route:Route
+    const route:Route = super.set(pathOrRoute)
 
-    if (typeof pathOrRoute === 'string') {
-      route = this.router.currentScope.find(pathOrRoute as string)
-    } else {
-      route = pathOrRoute
-    }
+    const len = route.parent.children.length - 1
+    const i   = route.parent.children.indexOf(route)
+    const ii  = clamp(len - index, 0, len)
 
-    if (route && route.parent) {
-      const len = route.parent.children.length - 1
-      const i   = route.parent.children.indexOf(route)
-      const ii  = clamp(len - index, 0, len)
-
-      route.parent.children.splice(i, 1)
-      route.parent.children.splice(ii, 0, route)
-    }
+    route.parent.children.splice(i, 1)
+    route.parent.children.splice(ii, 0, route)
 
     return route
   }
