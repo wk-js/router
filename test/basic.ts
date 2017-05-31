@@ -57,4 +57,13 @@ describe('basic', function() {
     assert.ok(!result)
   })
 
+  it('get url parameters', function(done) {
+    router.route('/hello', function(parameters) {
+      assert.equal(parameters.name, 'Lucky')
+      done()
+    })
+
+    router.go('/hello?name=Lucky')
+  })
+
 })
