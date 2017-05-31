@@ -80,6 +80,8 @@ class Resolver {
         basename       = uPath.basename
         route_basename = rPath.basename
 
+        Object.assign(args, uPath.extractParameters())
+
         if (rPath.is_dynamic && route_basename !== basename) {
           if (rPath.constraint(basename)) {
             args[route_basename.slice(1)] = basename

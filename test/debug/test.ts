@@ -102,7 +102,7 @@ router.route('/:country/:locale/legals', function(parameters) {
 // router.forward()
 
 router.go('/FR/fr')
-router.go('/FR/fr/about')
+router.go('/FR/fr/about?yolo=world')
 router.go('mentions_legales')
 router.go('/:country/:locale/languages', { parameters: { country: 'FR', locale: 'fr' } })
 
