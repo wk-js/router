@@ -129,33 +129,15 @@ class Router {
   }
 
   forward() {
-    const valid = this.stack.forward()
-
-    const result = Resolver.resolve(this.stack.path, this)
-
-    if (result && valid) {
-      const route = result.route
-      const args  = result.args
-      route.closure.call(route, args)
-
-      return true
-    }
+    if (this.stack.forward())
+      return this.go(this.stack.path, { force: true })
 
     return false
   }
 
   backward() {
-    const valid = this.stack.backward()
-
-    const result = Resolver.resolve(this.stack.path, this)
-
-    if (result && valid) {
-      const route = result.route
-      const args  = result.args
-      route.closure.call(route, args)
-
-      return true
-    }
+    if (this.stack.backward())
+      return this.go(this.stack.path, { force: true })
 
     return false
   }

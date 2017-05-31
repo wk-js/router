@@ -49,6 +49,14 @@ concern.create('common', function() {
     console.log('About', parameters)
   })
 
+  redirect.set('/languages', {
+    path: '/:country/:locale',
+    parameters: {
+      country: 'GB',
+      locale: 'en'
+    }
+  })
+
 })
 
 concern.set('/:country/:locale', [ 'errors', 'common' ])
@@ -79,7 +87,7 @@ router.default('/:country/:locale', 'fr')
 // router.go('/FR/fr/contact')
 
 // Redirection
-redirect.set('/redirect', { path: '/hello' })
+redirect.set('/redirect', { path: '/:country/:locale', parameters: { country: 'GB', locale: 'en' } })
 
 // router.go('/lol')
 
@@ -96,10 +104,11 @@ router.route('/:country/:locale/legals', function(parameters) {
 router.go('/FR/fr')
 router.go('/FR/fr/about')
 router.go('mentions_legales')
-router.go('/redirect')
+router.go('/:country/:locale/languages', { parameters: { country: 'FR', locale: 'fr' } })
+
 // router.go('/GB/en')
 // router.go('/PL/pl')
 // router.replace('/ES/es')
 
 // List routes
-// console.log(router.getRoutes())
+console.log(router.getRoutes())
