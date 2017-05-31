@@ -4,11 +4,7 @@ import Path from '../path'
 
 class Redirect extends Extension {
 
-<<<<<<< HEAD
   public name: string = 'redirect'
-=======
-  public name: string = 'redirection'
->>>>>>> a8df6e79410249d63ce28466a1e8b90e3ca76adc
   public redirections = {}
 
   set(pathOrRoute: string | Route, options?: any): Route {
@@ -22,11 +18,7 @@ class Redirect extends Extension {
       opts = options
     }
 
-<<<<<<< HEAD
     this.redirections[Path.slash(route.getPath())] = {
-=======
-    this.redirections['/' + route.getPath()] = {
->>>>>>> a8df6e79410249d63ce28466a1e8b90e3ca76adc
       route: route,
       options: opts
     }
