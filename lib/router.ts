@@ -1,4 +1,4 @@
-import { EventEmitter } from 'eventemitter3'
+// import { EventEmitter } from 'eventemitter3'
 import Path from './path'
 import Node from './node'
 import Route from './route'
@@ -17,7 +17,7 @@ class Router {
 
   public root:Route
   public stack:Stack
-  public events:EventEmitter
+  // public events:EventEmitter
   public currentScope:Route
   public concerns = {}
   public extensions = []
@@ -26,7 +26,7 @@ class Router {
   constructor() {
     this.root   = new Route('/', null)
     this.stack  = new Stack('/')
-    this.events = new EventEmitter
+    // this.events = new EventEmitter
 
     this.currentScope = this.root
   }
