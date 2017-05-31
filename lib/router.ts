@@ -5,9 +5,15 @@ import Route from './route'
 import Stack from './stack'
 import Resolver from './resolver'
 import { ResolverResult } from './resolver'
-import Extension from './extensions/_extension'
 
 class Router {
+
+  static Extensions = {
+    order: require('./extensions/order').default,
+    concern: require('./extensions/concern').default,
+    redirect: require('./extensions/redirect').default,
+    reference: require('./extensions/reference').default
+  }
 
   public root:Route
   public stack:Stack
@@ -15,6 +21,7 @@ class Router {
   public currentScope:Route
   public concerns = {}
   public extensions = []
+  public _extensions = {}
 
   constructor() {
     this.root   = new Route('/', null)
@@ -111,10 +118,29 @@ class Router {
     route.path.defaultValue = defaultValue
   }
 
-  extension(ExtensionClass) : Extension {
-    const extension = new ExtensionClass(this)
-    this.extensions.push( extension )
-    return extension
+  extension(extension:any) {
+    // Getter
+    if (typeof extension === 'string' && this._extensions[extension]) {
+      return this._extensions[extension]
+    }
+
+    // Setter
+    let ext = null, extension_class = null
+
+    if (typeof extension === 'string' && Router.Extensions[extension]) {
+      extension_class = Router.Extensions[extension]
+    } else if (typeof extension === 'function') {
+      extension_class = extension
+    }
+
+    if (extension_class) {
+      ext = new extension_class( this )
+      this._extensions[ext.name] = ext
+      this.extensions.push( ext )
+      return ext
+    }
+
+    return ext
   }
 
   go(path: string, options?: any): ResolverResult | null {

@@ -1,10 +1,9 @@
 import Router from '../lib/router'
-import RedirectExtension from '../lib/extensions/redirect'
 import * as assert from 'assert'
 
-const router = new Router
-
-const redirect = router.extension(RedirectExtension) as RedirectExtension
+const router   = new Router
+const order    = router.extension('order')
+const redirect = router.extension('redirect')
 
 describe('redirect', function() {
 
@@ -19,7 +18,7 @@ describe('redirect', function() {
     router.route('/:error_code', function(parameters, result) {
       assert.ok(true)
       done()
-    }, { constraint: /(404|500)/ })
+    }, { constraint: /(404|500)/, order: 1 })
 
     router.go('/lol')
   })

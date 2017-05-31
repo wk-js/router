@@ -42,8 +42,8 @@ describe('scope', function() {
       '/user',
       '/user/create',
       '/user/:id',
+      '/user/:anything',
       '/user/:id/update',
-      '/user/:anything'
     ])
   })
 

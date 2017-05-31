@@ -78,8 +78,8 @@ router.route('/', function() {
 })
 
 // Set default
-router.default('/:country', 'FR')
-router.default('/:country/:locale', 'fr')
+router.defaultValue('/:country', 'FR')
+router.defaultValue('/:country/:locale', 'fr')
 
 // router.go('/GB/en') // /GB/en
 // router.go('/:country/:locale') // By default: /FR/fr
