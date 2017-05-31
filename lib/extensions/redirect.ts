@@ -18,7 +18,7 @@ class Redirect extends Extension {
       opts = options
     }
 
-    this.redirections[Path.slash(route.getPath())] = {
+    this.redirections[route.getPath()] = {
       route: route,
       options: opts
     }

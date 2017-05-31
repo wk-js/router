@@ -25,10 +25,10 @@ class Router {
 
   getRoutes() {
     const routes = Resolver.getRoutes(this.root).map(function(route) {
-      return Path.slash(route.getPath())
+      return route.getPath()
     })
 
-    routes.unshift(Path.slash(this.root.getPath()))
+    routes.unshift(this.root.getPath())
 
     return routes
   }
@@ -124,26 +124,26 @@ class Router {
     if (result && (this.stack.go(result.path) || options.force)) {
       const route = result.route
       const args  = result.args
-      if (!options.ignoreClosure) route.closure.call(route, args)
+      if (!options.ignoreClosure) route.closure.call(route, args, result)
 
-      return true
+      return result
     }
 
-    return false
+    return null
   }
 
   forward() {
     if (this.stack.forward())
       return this.go(this.stack.path, { force: true })
 
-    return false
+    return null
   }
 
   backward() {
     if (this.stack.backward())
       return this.go(this.stack.path, { force: true })
 
-    return false
+    return null
   }
 
   updatePath() {

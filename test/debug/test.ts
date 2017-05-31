@@ -1,7 +1,7 @@
-import Router from '../lib/router'
-import ConcernExtension from '../lib/extensions/concern'
-import RedirectExtension from '../lib/extensions/redirect'
-import ReferenceExtension from '../lib/extensions/reference'
+import Router from '../../lib/router'
+import ConcernExtension from '../../lib/extensions/concern'
+import RedirectExtension from '../../lib/extensions/redirect'
+import ReferenceExtension from '../../lib/extensions/reference'
 
 const router = new Router
 

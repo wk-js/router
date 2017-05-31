@@ -137,7 +137,7 @@ class Node {
       return path.basename
     })
 
-    return Path.join(paths)
+    return Path.slash(Path.join(paths))
   }
 
 }

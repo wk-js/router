@@ -1,5 +1,5 @@
-import Router from '../lib/router'
-import RedirectExtension from '../lib/extensions/redirect'
+import Router from '../../lib/router'
+import RedirectExtension from '../../lib/extensions/redirect'
 
 const router = new Router
 
