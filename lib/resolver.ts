@@ -48,9 +48,15 @@ class Resolver {
   }
 
   static getRoutes(root:Route) {
-    return Object.keys(root.nodes).map(function(key) {
-      return root.nodes[key]
-    })
+    let routes = []
+
+    routes = routes.concat(root.children)
+
+    for (let i = 0, ilen = root.children.length; i < ilen; i++) {
+      routes = routes.concat(Resolver.getRoutes(root.children[i]))
+    }
+
+    return routes
   }
 
   static match(path:string, route:Route) : ResolverResult {
