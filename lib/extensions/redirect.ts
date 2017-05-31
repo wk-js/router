@@ -1,9 +1,10 @@
 import Route from '../route'
 import Extension from './_extension'
+import Path from '../path'
 
 class Redirect extends Extension {
 
-  public name: string = 'redirection'
+  public name: string = 'redirect'
   public redirections = {}
 
   set(pathOrRoute: string | Route, options?: any): Route {
@@ -17,7 +18,7 @@ class Redirect extends Extension {
       opts = options
     }
 
-    this.redirections['/' + route.getPath()] = {
+    this.redirections[Path.slash(route.getPath())] = {
       route: route,
       options: opts
     }
