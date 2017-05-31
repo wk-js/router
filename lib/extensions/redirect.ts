@@ -5,7 +5,6 @@ import Path from '../path'
 class Redirect extends Extension {
 
   public name: string = 'redirect'
-  public redirections = {}
 
   set(pathOrRoute: string | Route, options?: any): Route {
     const route: Route = super.set(pathOrRoute)
@@ -18,26 +17,13 @@ class Redirect extends Extension {
       opts = options
     }
 
-    this.redirections[route.getPath()] = {
-      route: route,
-      options: opts
+    route.closure = () => {
+      this.router.go(opts.path, Object.assign(opts, {
+        replace: true
+      }))
     }
 
     return route
-  }
-
-  resolve(path: string, options): Route | null {
-
-    if (this.redirections[path]) {
-      const route = this.redirections[path].route
-      const opts  = this.redirections[path].options
-      const root  = route.root
-
-      Object.assign(options, opts)
-      return root.find(opts.path)
-    }
-
-    return null
   }
 
 }

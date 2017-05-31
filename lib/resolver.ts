@@ -2,7 +2,7 @@ import Path from './path'
 import Route from './route'
 import Router from './router'
 
-interface ResolverResult {
+export interface ResolverResult {
   route?:Route,
   args?:any,
   path:string

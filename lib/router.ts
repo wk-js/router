@@ -4,6 +4,7 @@ import Node from './node'
 import Route from './route'
 import Stack from './stack'
 import Resolver from './resolver'
+import { ResolverResult } from './resolver'
 import Extension from './extensions/_extension'
 
 class Router {
@@ -33,7 +34,7 @@ class Router {
     return routes
   }
 
-  route(path:string, closure:(parameters:any) => void, options?:any) {
+  route(path: string, closure: (parameters:any, result:any) => void, options?: any) {
     options = options || {}
 
     let route:Route
@@ -46,7 +47,7 @@ class Router {
     }
 
     if (options.constraint)   this.constraint(route, options.constraint)
-    if (options.defaultValue) this.default(route, options.defaultValue)
+    if (options.defaultValue) this.defaultValue(route, options.defaultValue)
 
     // Set extension parameters
     for (let i = 0, ilen = this.extensions.length; i < ilen; i++) {
@@ -56,7 +57,7 @@ class Router {
     return route
   }
 
-  scope(path:string, closure:(parameters:any) => void) {
+  scope(path: string, closure: (parameters:any) => void) {
 
     const current = this.currentScope
 
@@ -70,7 +71,7 @@ class Router {
     return scope
   }
 
-  constraint(pathOrRoute:string | Route, constraint:((value:string) => boolean)|RegExp|string) {
+  constraint(pathOrRoute: string | Route, constraint: ((value: string) => boolean) | RegExp | string) {
 
     let route:Route
 
@@ -95,10 +96,10 @@ class Router {
       }
     }
 
-    route.path.constraint = constraint as ((value:string) => boolean)
+    route.path.constraint = constraint as ((value: string) => boolean)
   }
 
-  default(pathOrRoute:string | Route, defaultValue:string) {
+  defaultValue(pathOrRoute: string | Route, defaultValue: string) {
     let route:Route
 
     if (typeof pathOrRoute === 'string') {
@@ -116,12 +117,12 @@ class Router {
     return extension
   }
 
-  go(path:string, options?:any) {
+  go(path: string, options?: any): ResolverResult | null {
     options = Object.assign({}, options || {})
 
     const result = Resolver.resolve(path, this, options)
 
-    if (result && (this.stack.go(result.path) || options.force)) {
+    if (result && ((options.replace ? this.stack.replace(result.path) : this.stack.go(result.path)) || options.force)) {
       const route = result.route
       const args  = result.args
       if (!options.ignoreClosure) route.closure.call(route, args, result)
@@ -132,14 +133,14 @@ class Router {
     return null
   }
 
-  forward() {
+  forward(): ResolverResult | null {
     if (this.stack.forward())
       return this.go(this.stack.path, { force: true })
 
     return null
   }
 
-  backward() {
+  backward(): ResolverResult | null {
     if (this.stack.backward())
       return this.go(this.stack.path, { force: true })
 
