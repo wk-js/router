@@ -98,10 +98,14 @@ class Node {
     const part = parts.shift()
     let child  = null
 
-    for (let i = 0, ilen = node.children.length; i < ilen; i++) {
-      if (node.children[i].path.basename === part) {
-        child = node.children[i]
-        break
+    child = node.path.basename === part ? node : null
+
+    if (!child) {
+      for (let i = 0, ilen = node.children.length; i < ilen; i++) {
+        if (node.children[i].path.basename === part) {
+          child = node.children[i]
+          break
+        }
       }
     }
 

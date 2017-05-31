@@ -24,9 +24,13 @@ class Router {
   }
 
   getRoutes() {
-    return Resolver.getRoutes(this.root).map(function(route) {
+    const routes = Resolver.getRoutes(this.root).map(function(route) {
       return Path.slash(route.getPath())
     })
+
+    routes.unshift(Path.slash(this.root.getPath()))
+
+    return routes
   }
 
   route(path:string, closure:(parameters:any) => void, options?:any) {
