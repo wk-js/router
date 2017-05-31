@@ -1,2 +1,9 @@
 import Router from './router'
-window.Router = Router
+
+if (typeof module === 'object' && typeof module.exports === 'object') {
+  module.exports = Router
+}
+
+if (typeof window !== 'undefined') {
+  (window as any).Router = Router
+}

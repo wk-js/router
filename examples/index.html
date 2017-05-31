@@ -1,0 +1,67 @@
+<html>
+  <head>
+    <title>Router.js</title>
+  </head>
+  <body>
+    <div id="app">
+      <section style="display:none;">
+        <h1>Home</h1>
+        <a href="#" onclick="router.go('/about'); return false;">About</a>
+        <a href="#" onclick="router.go('/contact'); return false;">Contact</a>
+      </section>
+
+      <section style="display:none;">
+        <h1>About</h1>
+        <a href="#" onclick="router.go('/'); return false;">Back</a>
+      </section>
+
+      <section style="display:none;">
+        <h1>Not found</h1>
+        <a href="#" onclick="router.go('/'); return false;">Back</a>
+      </section>
+    </div>
+
+    <script src="router.js"></script>
+    <script>
+      var router = new Router
+
+      function hidePages() {
+        var $pages = document.querySelectorAll('#app section')
+        for (var i = 0, ilen = $pages.length; i < ilen; i++) {
+          $pages[i].style.display = 'none'
+        }
+      }
+
+      function showPage(index) {
+        hidePages()
+        var $page = document.querySelector('#app section:nth-child('+(index+1)+')')
+        if ($page) $page.style.display = 'block'
+      }
+
+      router.route('/', function() {
+        showPage(0)
+      })
+
+      router.route('/about', function() {
+        showPage(1)
+      })
+
+      var concern = router.extension('concern')
+      concern.create('errors', function() {
+        router.route('/404', function() {
+          showPage(2)
+        })
+      })
+
+      concern.set('/', 'errors')
+
+      var reference = router.extension('reference')
+      reference.set('/404', 'not_found')
+
+      var redirect = router.extension('redirect')
+      redirect.set('/:anything', 'not_found')
+
+      router.go('/', { force: true })
+    </script>
+  </body>
+</html>

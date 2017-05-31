@@ -6,8 +6,8 @@
   "scripts": {
     "test": "./node_modules/.bin/mocha -r ./node_modules/ts-node/register test/*.ts",
     "start": "./node_modules/.bin/nodemon --exec ./node_modules/.bin/ts-node ./test/debug/test.ts",
-    "compile": "NODE_ENV=release node fuse.js",
-    "server": "NODE_ENV=development node fuse.js"
+    "compile": "node fusebox/release.js",
+    "server": "node fusebox/development.js"
   },
   "author": "",
   "license": "ISC",
