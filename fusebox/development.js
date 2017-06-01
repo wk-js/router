@@ -6,7 +6,7 @@ const path        = require('path')
 
 const fuse = FuseBox.init({
   homeDir: "../lib",
-  output: "../build/$name.js",
+  output: "../tmp/$name.js",
   tsConfig: `../tsconfig.json`,
 })
 
@@ -19,7 +19,7 @@ fuse.dev({ root: false }, (server) => {
   const app  = server.httpServer.app
 
   app.use(express.static(dist))
-  app.use(express.static(path.resolve('build')))
+  app.use(express.static(path.resolve('tmp')))
 
   app.get('*', function(req, res) {
     res.sendFile(path.join(dist, 'index.html'))
