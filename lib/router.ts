@@ -1,4 +1,4 @@
-// import { EventEmitter } from 'eventemitter3'
+import { EventEmitter } from 'eventemitter3'
 import Path from './path'
 import Node from './node'
 import Route from './route'
@@ -8,16 +8,11 @@ import { ResolverResult } from './resolver'
 
 class Router {
 
-  static Extensions = {
-    order: require('./extensions/order').default,
-    concern: require('./extensions/concern').default,
-    redirect: require('./extensions/redirect').default,
-    reference: require('./extensions/reference').default
-  }
+  static Extensions:any = {}
 
   public root:Route
   public stack:Stack
-  // public events:EventEmitter
+  public events:EventEmitter
   public currentScope:Route
   public concerns = {}
   public extensions = []
@@ -26,7 +21,7 @@ class Router {
   constructor() {
     this.root   = new Route('/', null)
     this.stack  = new Stack('/')
-    // this.events = new EventEmitter
+    this.events = new EventEmitter
 
     this.currentScope = this.root
   }
@@ -143,17 +138,23 @@ class Router {
     return ext
   }
 
-  go(path: string, options?: any): ResolverResult | null {
+  go(path:string, options?:any): ResolverResult | null {
     options = Object.assign({}, options || {})
 
     const result = Resolver.resolve(path, this, options)
 
-    if (result && ((options.replace ? this.stack.replace(result.path) : this.stack.go(result.path)) || options.force)) {
-      const route = result.route
-      const args  = result.args
-      if (!options.ignoreClosure) route.closure.call(route, args, result)
+    if (result) {
+      const stackValid = options.replace ? this.stack.replace(result.path) : this.stack.go(result.path)
+      if (stackValid) this.events.emit(options.replace ? 'replace' : 'push', result)
 
-      return result
+      if (stackValid || options.force) {
+        const route = result.route
+        const args  = result.args
+
+        if (!options.ignoreClosure) route.closure.call(route, args, result)
+
+        return result
+      }
     }
 
     return null
@@ -176,9 +177,7 @@ class Router {
   updatePath() {
     const valid = this.stack.updatePath()
 
-    // this.plugins.forEach((plugin) => {
-    //   if (plugin.update) plugin.update(this.stack.path)
-    // })
+    this.events.emit('update_path', this.stack.path)
 
     return valid
   }

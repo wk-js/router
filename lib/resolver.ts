@@ -5,6 +5,7 @@ import Router from './router'
 export interface ResolverResult {
   route?:Route,
   args?:any,
+  options?:any
   path:string
 }
 
@@ -22,7 +23,8 @@ class Resolver {
       for (let i = 0, ilen = router.extensions.length; i < ilen; i++) {
         route = router.extensions[i].resolve(path, options)
         if (route) {
-          return Resolver._resolveByRoute(route.getPath(), route, options)
+          result = Resolver._resolveByRoute(route.getPath(), route, options)
+          if (result) break
         }
       }
     }
@@ -43,6 +45,8 @@ class Resolver {
         if (result) break
       }
     }
+
+    if (result) result.options = options
 
     return result
   }

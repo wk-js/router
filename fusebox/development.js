@@ -21,7 +21,7 @@ fuse.dev({ root: false }, (server) => {
   app.use(express.static(dist))
   app.use(express.static(path.resolve('build')))
 
-  app.get('/', function(req, res) {
+  app.get('*', function(req, res) {
     res.sendFile(path.join(dist, 'index.html'))
   })
 })

@@ -58,20 +58,25 @@
 
       router.route('/', function() {
         showPage(0)
+        document.title = 'Router.js'
       })
 
       router.route('/about', function() {
         showPage(1)
+        document.title = 'Router.js - About'
       })
 
       var concern = router.extension('concern')
       concern.create('errors', function() {
         router.route('/404', function() {
           showPage(2)
+          document.title = 'Router.js - 404'
         })
       })
 
       concern.set('/', 'errors')
+
+      router.extension('history')
 
       var reference = router.extension('reference')
       reference.set('/404', 'not_found')
@@ -79,7 +84,7 @@
       var redirect = router.extension('redirect')
       redirect.set('/:anything', 'not_found')
 
-      router.go('/', { force: true })
+      router.go('/', { force: true, replace: true })
     </script>
   </body>
 </html>
