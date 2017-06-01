@@ -6,8 +6,9 @@ class History extends Extension {
 
   public name:string = 'history'
   public enable:boolean = true
-  public SUPPORT_PUSH_STATE = window.history.pushState !== undefined
-  public SUPPORT_REPLACE_STATE = window.history.replaceState !== undefined
+
+  static SUPPORT_PUSH_STATE = window.history && window.history.pushState !== undefined
+  static SUPPORT_REPLACE_STATE = window.history && window.history.replaceState !== undefined
 
   constructor(router:Router) {
     super(router)
@@ -37,7 +38,7 @@ class History extends Extension {
   _onPushState(result) {
     if (!this.enable || (typeof result.options.history === 'boolean' && !result.options.history)) return
 
-    if (this.SUPPORT_PUSH_STATE) {
+    if (History.SUPPORT_PUSH_STATE) {
       window.history.pushState.apply(window.history, this.prepareHistory(result))
     }
   }
@@ -45,7 +46,7 @@ class History extends Extension {
   _onReplaceState(result) {
     if (!this.enable || (typeof result.options.history === 'boolean' && !result.options.history)) return
 
-    if (this.SUPPORT_REPLACE_STATE) {
+    if (History.SUPPORT_REPLACE_STATE) {
       window.history.replaceState.apply(window.history, this.prepareHistory(result))
     }
   }
