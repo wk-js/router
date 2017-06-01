@@ -174,7 +174,7 @@ class Router {
     return null
   }
 
-  updatePath() {
+  private updatePath() {
     const valid = this.stack.updatePath()
 
     this.events.emit('update_path', this.stack.path)
