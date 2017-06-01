@@ -8,6 +8,8 @@ const fuse = FuseBox.init({
   homeDir: "../lib",
   output: "../tmp/$name.js",
   tsConfig: `../tsconfig.json`,
+  useCache: false,
+  globals: { default: "Router" }
 })
 
 fuse.bundle('router')
