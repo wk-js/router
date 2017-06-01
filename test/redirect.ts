@@ -1,9 +1,11 @@
 import Router from '../lib/router'
+import RedirectExtension from '../lib/extensions/redirect'
+import OrderExtension from '../lib/extensions/order'
 import * as assert from 'assert'
 
 const router   = new Router
-const order    = router.extension('order')
-const redirect = router.extension('redirect')
+const order    = router.extension(OrderExtension)
+const redirect = router.extension(RedirectExtension)
 
 describe('redirect', function() {
 

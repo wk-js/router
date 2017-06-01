@@ -1,9 +1,10 @@
 import Router from '../lib/router'
+import ConcernExtension from '../lib/extensions/concern'
 import * as assert from 'assert'
 
 const router = new Router
 
-const concern = router.extension('concern')
+const concern = router.extension(ConcernExtension)
 
 concern.create('common', function() {
 

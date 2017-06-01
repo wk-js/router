@@ -1,8 +1,9 @@
 import Router from '../lib/router'
+import ReferenceExtension from '../lib/extensions/reference'
 import * as assert from 'assert'
 
 const router = new Router
-router.extension('reference')
+router.extension(ReferenceExtension)
 
 router.route('/', function () {
   // console.log('Home')

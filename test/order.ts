@@ -1,8 +1,9 @@
 import Router from '../lib/router'
 import * as assert from 'assert'
+import OrderExtension from '../lib/extensions/order'
 
 const router = new Router
-const order  = router.extension('order')
+const order  = router.extension(OrderExtension)
 
 router.route('/route0', function() {}, { order: 0 })
 router.route('/route1', function() {}, { order: 1 })
